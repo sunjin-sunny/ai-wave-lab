@@ -12,7 +12,7 @@ function Nav() {
               <a href="#projects">Projects</a>
             </li>
             <li>
-              <a href="#logbook">Logbook</a>
+              <a href="#logbook">Logging</a>
             </li>
             <li>
               <a href="#about">About</a>

@@ -4,17 +4,20 @@ const entries = [
   { date: 'Next', text: 'Ship something people can actually use.' },
 ]
 
-function Logbook() {
+function Logging() {
   return (
     <section id="logbook" className="logbook">
       <div className="container">
-        <h2 className="section-heading">Logbook</h2>
-        <p className="section-subtitle">
-          Notes from building, learning, and experimenting.
-        </p>
+        <h2 className="section-heading">Logging</h2>
+        <p className="section-subtitle">Notes from the ride.</p>
         <ul className="log-list">
           {entries.map((entry, index) => (
-            <li key={index} className="log-list__row">
+            <li
+              key={index}
+              className={`log-list__row ${
+                entry.date === 'Next' ? 'log-list__row--next' : ''
+              }`}
+            >
               <span className="log-list__date">{entry.date}</span>
               <span className="log-list__text">{entry.text}</span>
             </li>
@@ -25,4 +28,4 @@ function Logbook() {
   )
 }
 
-export default Logbook
+export default Logging

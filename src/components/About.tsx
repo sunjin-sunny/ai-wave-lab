@@ -1,4 +1,31 @@
+import { useEffect, useRef } from 'react'
+
 function About() {
+  const emphasisRef = useRef<HTMLParagraphElement>(null)
+
+  useEffect(() => {
+    const el = emphasisRef.current
+    if (!el) return
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      el.classList.add('is-visible')
+      return
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          el.classList.add('is-visible')
+          observer.disconnect()
+        }
+      },
+      { threshold: 0.6 },
+    )
+    observer.observe(el)
+
+    return () => observer.disconnect()
+  }, [])
+
   return (
     <section id="about" className="about">
       <div className="container">
@@ -11,7 +38,9 @@ function About() {
             <br />
             into things people can actually click.
           </p>
-          <p>Surfing taught me that every wave is different.</p>
+          <p ref={emphasisRef} className="about__emphasis">
+            Surfing taught me that every wave is different.
+          </p>
           <p>Building products feels the same.</p>
           <p className="about__closing">
             You don't control everything.
