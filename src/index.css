@@ -107,6 +107,60 @@ button:focus-visible {
   font-size: 16px;
 }
 
+/* Keeps an element in the accessibility tree (screen readers, document
+   outline) while removing it from view — used where a heading needs to
+   exist semantically but shouldn't announce itself visually. */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* A small uppercase text link with a turquoise underline that grows in on
+   hover/focus — reused wherever a quiet "go elsewhere" link is needed
+   (project detail back-link, the future waves archive link). */
+.text-link {
+  position: relative;
+  display: inline-block;
+  padding-bottom: 3px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--navy-soft);
+  transition: color 0.4s ease;
+}
+
+.text-link::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  background: var(--ocean-bright);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.text-link:hover,
+.text-link:focus-visible {
+  color: var(--ocean);
+}
+
+.text-link:hover::after,
+.text-link:focus-visible::after {
+  transform: scaleX(1);
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;

@@ -8,6 +8,7 @@ import Logging from './components/Logging'
 import About from './components/About'
 import Footer from './components/Footer'
 import ProjectDetail from './components/ProjectDetail'
+import WavesArchive from './components/WavesArchive'
 import { usePathname } from './lib/router'
 
 // Future easter-egg hook (not implemented yet): a quiet trigger — a key
@@ -22,6 +23,7 @@ const PROJECT_ROUTE = /^\/projects\/([^/]+)\/?$/
 function App() {
   const pathname = usePathname()
   const projectSlug = pathname.match(PROJECT_ROUTE)?.[1]
+  const isWavesArchive = pathname === '/projects' || pathname === '/projects/'
 
   useEffect(() => {
     window.scrollTo(0, 0)
@@ -33,6 +35,8 @@ function App() {
       <main>
         {projectSlug ? (
           <ProjectDetail slug={projectSlug} />
+        ) : isWavesArchive ? (
+          <WavesArchive />
         ) : (
           <>
             <Hero />

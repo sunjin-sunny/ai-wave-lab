@@ -212,16 +212,26 @@
 
 /* ---------- current wave ---------- */
 
+/* No border-top, and less top padding than other sections — Current Wave
+   stays close behind the hero, still riding its energy instead of starting
+   a fresh "page." */
 .current-wave {
-  padding-block: clamp(64px, 9vw, 120px);
-  border-top: 1px solid var(--border-soft);
+  padding-top: clamp(32px, 5vw, 56px);
+  padding-bottom: clamp(64px, 9vw, 110px);
+}
+
+/* The rail wraps the heading too, so the turquoise line reads as one
+   continuous stroke starting right under the tick mark, not a separate
+   rule drawn only around the list. */
+.current-wave__rail {
+  padding-left: clamp(20px, 4vw, 32px);
+  border-left: 2px solid var(--ocean-pale);
 }
 
 .wave-list {
   list-style: none;
-  margin: 36px 0 0;
-  padding-left: clamp(20px, 4vw, 32px);
-  border-left: 2px solid var(--ocean-pale);
+  margin: 28px 0 0;
+  padding: 0;
   display: flex;
   flex-direction: column;
   gap: clamp(28px, 4vw, 40px);
@@ -243,15 +253,18 @@
 
 .wave-list__value {
   font-size: clamp(22px, 3vw, 30px);
+  line-height: 1.2;
   color: var(--navy);
   font-weight: 500;
 }
 
 /* ---------- projects ---------- */
 
+/* No border-top, and more room than its neighbors — Selected Waves is the
+   "expansive" section, so its whitespace should feel different in kind,
+   not just in amount. */
 .projects {
-  padding-block: clamp(64px, 9vw, 120px);
-  border-top: 1px solid var(--border-soft);
+  padding-block: clamp(72px, 10vw, 130px);
 }
 
 .project-list {
@@ -267,6 +280,24 @@
   padding: clamp(32px, 5vw, 48px) clamp(12px, 2vw, 20px);
   border-top: 1px solid var(--border);
   transition: background-color 0.5s ease;
+}
+
+/* The first (current/flagship) wave isn't fenced off from the heading
+   above it, and gets more space and a larger number/title — later waves
+   stay compact so the list reads as curated, not a repeated component. */
+.project-row:first-child {
+  border-top: none;
+  padding-top: clamp(4px, 1.5vw, 16px);
+  padding-bottom: clamp(40px, 6vw, 64px);
+}
+
+.project-row:first-child .project-row__number {
+  font-size: 15px;
+  color: var(--ocean);
+}
+
+.project-row:first-child .project-row__title {
+  font-size: clamp(30px, 4.6vw, 54px);
 }
 
 .project-row:last-child {
@@ -425,7 +456,14 @@
 .project-row__description {
   grid-area: description;
   max-width: 60ch;
+  line-height: 1.55;
   color: var(--gray);
+}
+
+/* First wave's description gets a little more room to breathe, matching
+   its larger title — later rows keep the narrower 60ch measure above. */
+.project-row:first-child .project-row__description {
+  max-width: 68ch;
 }
 
 .project-row__tags {
@@ -459,46 +497,17 @@
   }
 }
 
+/* "Selected Waves" is always a curated slice (see FEATURED_LIMIT in
+   Projects.tsx) — this is where the rest will live once there's an
+   archive to send people to. */
+.projects__archive-link {
+  margin-top: clamp(28px, 4vw, 40px);
+}
+
 /* ---------- project detail ---------- */
 
 .project-detail {
   padding-block: clamp(64px, 9vw, 120px);
-}
-
-.project-detail__back {
-  position: relative;
-  display: inline-block;
-  padding-bottom: 3px;
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  text-decoration: none;
-  color: var(--navy-soft);
-  transition: color 0.4s ease;
-}
-
-.project-detail__back::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 2px;
-  background: var(--ocean-bright);
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.project-detail__back:hover,
-.project-detail__back:focus-visible {
-  color: var(--ocean);
-}
-
-.project-detail__back:hover::after,
-.project-detail__back:focus-visible::after {
-  transform: scaleX(1);
 }
 
 .project-detail__header {
@@ -593,62 +602,54 @@
 
 /* ---------- logbook ---------- */
 
+/* No border-top, and the tightest padding of any section — Logging is
+   meant to feel like compact field notes, not another full "page." */
 .logbook {
-  padding-block: clamp(64px, 9vw, 120px);
-  border-top: 1px solid var(--border-soft);
+  padding-top: clamp(40px, 6vw, 72px);
+  padding-bottom: clamp(56px, 8vw, 96px);
 }
 
+/* Same rail treatment as Current Wave — a deliberate family resemblance
+   between the two "notes" sections, with Selected Waves breaking the
+   pattern in between. */
 .log-list {
   list-style: none;
-  margin: 36px 0 0;
-  padding: 0;
+  margin: 24px 0 0;
+  padding-left: clamp(20px, 4vw, 32px);
+  border-left: 2px solid var(--ocean-pale);
+  display: flex;
+  flex-direction: column;
+  gap: clamp(14px, 2vw, 18px);
   max-width: 640px;
 }
 
 .log-list__row {
-  position: relative;
   display: flex;
-  gap: 24px;
-  padding: clamp(18px, 3vw, 26px) 0;
-  border-top: 1px solid var(--border-soft);
+  flex-direction: column;
+  gap: 2px;
 }
 
-.log-list__row:last-child {
-  border-bottom: 1px solid var(--border-soft);
+.log-list__entry {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 10px;
 }
 
-.log-list__row::before {
-  content: '';
-  position: absolute;
-  top: -1px;
-  left: 0;
-  width: 100%;
-  height: 2px;
-  background: var(--ocean-bright);
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
-  pointer-events: none;
-}
-
-.log-list__row:hover::before {
-  transform: scaleX(1);
-}
-
+/* Timestamp-like: tabular figures and a leading dash, closer to a log
+   marker than the uppercase tracked "label" style used elsewhere. */
 .log-list__date {
-  flex: 0 0 90px;
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  font-size: 12px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.03em;
   color: var(--ocean);
 }
 
-.log-list__body {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  min-width: 0;
+.log-list__date::before {
+  content: '—';
+  margin-right: 8px;
+  color: var(--ocean-pale);
 }
 
 .log-list__text {
@@ -674,7 +675,15 @@
   text-underline-offset: 3px;
 }
 
+.log-list__row:not(.log-list__row--next):hover .log-list__date {
+  color: var(--ocean-bright);
+}
+
 .log-list__row--next .log-list__date {
+  color: var(--coral);
+}
+
+.log-list__row--next .log-list__date::before {
   color: var(--coral);
 }
 
@@ -685,13 +694,15 @@
 
 /* ---------- about ---------- */
 
+/* No border-top, no visible label (see .visually-hidden on the heading in
+   About.tsx), and the least top padding of any section — About should
+   emerge quietly out of Logging rather than announce a new "slide." */
 .about {
-  padding-block: clamp(64px, 9vw, 120px);
-  border-top: 1px solid var(--border-soft);
+  padding-top: clamp(16px, 3vw, 32px);
+  padding-bottom: clamp(72px, 10vw, 130px);
 }
 
 .about__body {
-  margin-top: 24px;
   max-width: 640px;
   display: flex;
   flex-direction: column;
@@ -699,6 +710,13 @@
   font-size: 18px;
   line-height: 1.6;
   color: var(--navy-soft);
+}
+
+/* With the "ABOUT" label hidden, the opening line carries a touch more
+   weight so it still reads as a clear (if quiet) arrival. */
+.about__body > p:first-child {
+  font-size: clamp(19px, 2.2vw, 22px);
+  color: var(--navy);
 }
 
 .about__emphasis {
@@ -844,8 +862,11 @@
       'tags';
   }
 
-  .log-list__row {
-    gap: 4px 24px;
+  /* Mobile is its own composition, not a narrowed desktop column: later
+     waves nudge slightly right as you scroll instead of staying pinned
+     to the same left edge as the flagship one above them. */
+  .project-row:not(:first-child) {
+    padding-left: calc(clamp(12px, 2vw, 20px) + 14px);
   }
 
   .site-footer__inner {

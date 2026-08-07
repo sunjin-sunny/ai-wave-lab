@@ -11,7 +11,7 @@ function ProjectDetail({ slug }: { slug: string }) {
     return (
       <section className="project-detail">
         <div className="container">
-          <Link href="/" className="project-detail__back">
+          <Link href="/" className="text-link project-detail__back">
             ← Selected Waves
           </Link>
           <p className="project-detail__missing">This wave hasn't broken yet.</p>
@@ -33,7 +33,7 @@ function ProjectDetail({ slug }: { slug: string }) {
   return (
     <section className="project-detail">
       <div className="container">
-        <Link href="/" className="project-detail__back">
+        <Link href="/" className="text-link project-detail__back">
           ← Selected Waves
         </Link>
 

@@ -1,7 +1,13 @@
 import Link from './Link'
 import { PROJECT_STATUS, getStatusLabel, projects } from '../data/projects'
 
-const featuredProjects = projects.filter((project) => project.featured)
+// "Selected Waves" is a curated homepage slice, not a full list — even
+// once many more projects are marked featured, only the first few show
+// here. The rest lives behind "Explore all waves" at /projects.
+const FEATURED_LIMIT = 3
+const featuredProjects = projects
+  .filter((project) => project.featured)
+  .slice(0, FEATURED_LIMIT)
 
 function Projects() {
   return (
@@ -41,6 +47,12 @@ function Projects() {
             </li>
           ))}
         </ul>
+        <Link
+          href="/projects"
+          className="text-link projects__archive-link"
+        >
+          Explore all waves →
+        </Link>
       </div>
     </section>
   )

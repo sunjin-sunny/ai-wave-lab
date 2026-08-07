@@ -33,7 +33,7 @@ function About() {
   return (
     <section id="about" className="about">
       <div className="container">
-        <h2 className="section-heading">About</h2>
+        <h2 className="section-heading visually-hidden">About</h2>
         <div className="about__body">
           <p>Hi, I'm Sunny.</p>
           <p>By day, I work as a Product Manager.</p>

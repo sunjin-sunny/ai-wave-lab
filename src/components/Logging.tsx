@@ -21,23 +21,23 @@ function Logging() {
                   entry.date === 'Next' ? 'log-list__row--next' : ''
                 }`}
               >
-                <span className="log-list__date">{entry.date}</span>
-                <span className="log-list__body">
+                <p className="log-list__entry">
+                  <span className="log-list__date">{entry.date}</span>
                   <span className="log-list__text">{entry.title}</span>
-                  {entry.description && (
-                    <span className="log-list__description">
-                      {entry.description}
-                    </span>
-                  )}
-                  {linkedProject && (
-                    <Link
-                      href={`/projects/${linkedProject.slug}`}
-                      className="log-list__project-link"
-                    >
-                      → {linkedProject.title}
-                    </Link>
-                  )}
-                </span>
+                </p>
+                {entry.description && (
+                  <p className="log-list__description">
+                    {entry.description}
+                  </p>
+                )}
+                {linkedProject && (
+                  <Link
+                    href={`/projects/${linkedProject.slug}`}
+                    className="log-list__project-link"
+                  >
+                    → {linkedProject.title}
+                  </Link>
+                )}
               </li>
             )
           })}
