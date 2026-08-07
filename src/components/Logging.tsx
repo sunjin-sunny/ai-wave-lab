@@ -1,8 +1,6 @@
-const entries = [
-  { date: 'Aug 2026', text: 'Started AI Wave Lab.' },
-  { date: 'Aug 2026', text: 'Built my first interactive D2C prototype with AI.' },
-  { date: 'Next', text: 'Ship something people can actually use.' },
-]
+import Link from './Link'
+import { logEntries } from '../data/logs'
+import { getProjectBySlug } from '../data/projects'
 
 function Logging() {
   return (
@@ -11,17 +9,38 @@ function Logging() {
         <h2 className="section-heading">Logging</h2>
         <p className="section-subtitle">Notes from the ride.</p>
         <ul className="log-list">
-          {entries.map((entry, index) => (
-            <li
-              key={index}
-              className={`log-list__row ${
-                entry.date === 'Next' ? 'log-list__row--next' : ''
-              }`}
-            >
-              <span className="log-list__date">{entry.date}</span>
-              <span className="log-list__text">{entry.text}</span>
-            </li>
-          ))}
+          {logEntries.map((entry, index) => {
+            const linkedProject = entry.projectSlug
+              ? getProjectBySlug(entry.projectSlug)
+              : undefined
+
+            return (
+              <li
+                key={index}
+                className={`log-list__row ${
+                  entry.date === 'Next' ? 'log-list__row--next' : ''
+                }`}
+              >
+                <span className="log-list__date">{entry.date}</span>
+                <span className="log-list__body">
+                  <span className="log-list__text">{entry.title}</span>
+                  {entry.description && (
+                    <span className="log-list__description">
+                      {entry.description}
+                    </span>
+                  )}
+                  {linkedProject && (
+                    <Link
+                      href={`/projects/${linkedProject.slug}`}
+                      className="log-list__project-link"
+                    >
+                      → {linkedProject.title}
+                    </Link>
+                  )}
+                </span>
+              </li>
+            )
+          })}
         </ul>
       </div>
     </section>

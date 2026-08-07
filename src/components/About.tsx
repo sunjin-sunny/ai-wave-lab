@@ -1,5 +1,9 @@
 import { useEffect, useRef } from 'react'
 
+// Copy stays as-is for now, but `.about__body` is just a plain flex column
+// of <p> tags — later, a fuller intro, PM background, why-AI story, an
+// image/pixel-art element, or external links can each be added as one more
+// child here (or a sibling block next to it) without restructuring anything.
 function About() {
   const emphasisRef = useRef<HTMLParagraphElement>(null)
 

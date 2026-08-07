@@ -155,7 +155,9 @@
   inset: 0;
   background-repeat: repeat-x;
   background-position-y: bottom;
-  background-size: 1440px 100%;
+  /* Tile shrinks with viewport width so narrow screens see more of the
+     wave's undulation instead of a nearly-flat slice of a wide pattern. */
+  background-size: clamp(640px, 100vw, 1440px) 100%;
   transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
@@ -195,7 +197,7 @@
     background-position-x: 0;
   }
   to {
-    background-position-x: -1440px;
+    background-position-x: calc(-1 * clamp(640px, 100vw, 1440px));
   }
 }
 
@@ -204,7 +206,7 @@
     background-position-x: 0;
   }
   to {
-    background-position-x: 1440px;
+    background-position-x: clamp(640px, 100vw, 1440px);
   }
 }
 
@@ -308,20 +310,26 @@
   color: var(--ocean);
 }
 
+/* Desktop lays title+status side by side (an editorial two-column head)
+   with description and tags spanning full width below. Mobile switches
+   to a single stacked column with a different reading order — see the
+   max-width: 640px override — using the same elements, just reordered. */
 .project-row__body {
   flex: 1 1 auto;
   min-width: 0;
-}
-
-.project-row__head {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-areas:
+    'title status'
+    'description description'
+    'tags tags';
+  column-gap: 24px;
+  row-gap: 10px;
   align-items: baseline;
-  justify-content: space-between;
-  gap: 8px 24px;
 }
 
 .project-row__title {
+  grid-area: title;
   font-size: clamp(26px, 3.6vw, 40px);
   letter-spacing: -0.01em;
   font-weight: 600;
@@ -332,7 +340,23 @@
   transform: translateX(6px);
 }
 
+/* The title link's ::after is stretched over the whole row, so the entire
+   row is clickable while the visible/focusable link stays just the title —
+   the classic "editorial row link" pattern, no button or card styling. */
+.project-row__title-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.project-row__title-link::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+
 .project-row__status {
+  grid-area: status;
+  align-self: start;
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -353,42 +377,64 @@
   background: var(--gray-light);
 }
 
-.project-row__status--active {
-  color: var(--coral);
-}
+/* Surf status vocabulary — a small dot/dash per status, never a pill. */
 
-.project-row__status--active::before {
-  background: var(--coral);
-}
-
-.project-row__status--experiment::before {
+.project-row__status--lineup::before {
   background: transparent;
   border: 1px solid var(--gray-light);
 }
 
-.project-row__status--queued::before {
+.project-row__status--white-wash::before {
+  background: var(--gray-light);
+}
+
+.project-row__status--take-off {
+  color: var(--navy-soft);
+}
+
+.project-row__status--take-off::before {
   width: 8px;
   height: 2px;
   border-radius: 1px;
   background: var(--ocean-pale);
 }
 
-.project-row:hover .project-row__status:not(.project-row__status--active) {
+.project-row__status--green-wave {
+  color: var(--coral);
+}
+
+.project-row__status--green-wave::before {
+  background: var(--coral);
+}
+
+.project-row__status--riding {
+  color: var(--ocean);
+}
+
+.project-row__status--riding::before {
+  background: var(--ocean-bright);
+}
+
+.project-row:hover
+  .project-row__status:not(.project-row__status--green-wave):not(
+    .project-row__status--riding
+  ) {
   color: var(--ocean);
 }
 
 .project-row__description {
-  margin-top: 12px;
+  grid-area: description;
   max-width: 60ch;
   color: var(--gray);
 }
 
 .project-row__tags {
+  grid-area: tags;
   list-style: none;
   display: flex;
   flex-wrap: wrap;
   gap: 0;
-  margin: 16px 0 0;
+  margin: 0;
   padding: 0;
   font-size: 13px;
   letter-spacing: 0.04em;
@@ -411,6 +457,138 @@
   .project-row__tags {
     justify-content: flex-end;
   }
+}
+
+/* ---------- project detail ---------- */
+
+.project-detail {
+  padding-block: clamp(64px, 9vw, 120px);
+}
+
+.project-detail__back {
+  position: relative;
+  display: inline-block;
+  padding-bottom: 3px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--navy-soft);
+  transition: color 0.4s ease;
+}
+
+.project-detail__back::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  background: var(--ocean-bright);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.project-detail__back:hover,
+.project-detail__back:focus-visible {
+  color: var(--ocean);
+}
+
+.project-detail__back:hover::after,
+.project-detail__back:focus-visible::after {
+  transform: scaleX(1);
+}
+
+.project-detail__header {
+  margin-top: 32px;
+}
+
+.project-detail__title {
+  margin-top: 12px;
+  font-size: clamp(36px, 6vw, 64px);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+}
+
+.project-detail__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 20px;
+  margin-top: 16px;
+}
+
+.project-detail__description {
+  margin-top: 20px;
+  max-width: 60ch;
+  font-size: 18px;
+  color: var(--gray);
+}
+
+.project-detail__hero-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin-top: 32px;
+}
+
+.project-detail__section {
+  max-width: 680px;
+  margin-top: clamp(40px, 6vw, 64px);
+  padding-top: clamp(40px, 6vw, 64px);
+  border-top: 1px solid var(--border-soft);
+}
+
+.project-detail__section-note {
+  margin-top: 4px;
+  font-size: 14px;
+  font-style: italic;
+  color: var(--gray-light);
+}
+
+.project-detail__section p,
+.project-detail__section ul {
+  margin-top: 16px;
+  color: var(--navy-soft);
+}
+
+.project-detail__section ul {
+  padding-left: 20px;
+}
+
+.project-detail__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  margin-top: 16px;
+  padding: 0;
+  list-style: none;
+}
+
+.project-detail__links a {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--ocean);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.project-detail__placeholder {
+  max-width: 60ch;
+  margin-top: clamp(40px, 6vw, 64px);
+  padding-top: clamp(40px, 6vw, 64px);
+  border-top: 1px solid var(--border-soft);
+  font-size: 15px;
+  font-style: italic;
+  color: var(--gray-light);
+}
+
+.project-detail__missing {
+  margin-top: 40px;
+  color: var(--gray);
 }
 
 /* ---------- logbook ---------- */
@@ -466,8 +644,34 @@
   color: var(--ocean);
 }
 
+.log-list__body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
 .log-list__text {
   color: var(--navy);
+}
+
+.log-list__description {
+  font-size: 15px;
+  color: var(--gray);
+}
+
+.log-list__project-link {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ocean);
+  text-decoration: none;
+  width: fit-content;
+}
+
+.log-list__project-link:hover,
+.log-list__project-link:focus-visible {
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
 .log-list__row--next .log-list__date {
@@ -574,6 +778,32 @@
 
 /* ---------- responsive ---------- */
 
+/* Tablet and phone (< laptop): the hero's tall, vertically-centered desktop
+   composition leaves a large dead gap above the wave on shorter, narrower
+   viewports. Let the hero size to its content instead, with just enough
+   bottom padding to clear the wave. */
+@media (max-width: 1023px) {
+  .hero {
+    min-height: auto;
+    align-items: flex-start;
+  }
+
+  .hero__content {
+    padding-top: clamp(40px, 8vw, 64px);
+    padding-bottom: calc(clamp(180px, 28vw, 320px) + 48px);
+  }
+}
+
+/* Small mobile (≈320–374px): brand + links no longer fit on one line at
+   readable sizes. Wrapping to two left-aligned rows keeps both fully
+   legible instead of forcing a collision or shrinking text further. */
+@media (max-width: 380px) {
+  .site-nav__inner {
+    flex-wrap: wrap;
+    row-gap: 10px;
+  }
+}
+
 @media (max-width: 640px) {
   .brand__name {
     font-size: 13px;
@@ -584,16 +814,34 @@
   }
 
   .nav-links a {
+    /* Extra vertical padding widens the tap target without shifting the
+       text — the negative margin cancels the padding's effect on layout. */
+    padding-block: 10px;
+    margin-block: -10px;
     font-size: 12px;
     letter-spacing: 0.03em;
   }
 
-  .hero {
-    min-height: 86vh;
+  /* The shine layer is the most subtle of the four wave layers — dropping
+     it on small screens is a cheap way to lighten continuous animation. */
+  .wave-layer--shine {
+    display: none;
   }
 
   .project-row {
     flex-direction: column;
+  }
+
+  /* Selected Waves mobile hierarchy: title, then description, then status,
+     then tags — status moves out from beside the title (see the desktop
+     grid-template-areas above) so it doesn't compete with the title line. */
+  .project-row__body {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      'title'
+      'description'
+      'status'
+      'tags';
   }
 
   .log-list__row {
