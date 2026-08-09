@@ -14,6 +14,7 @@
   --border-soft: rgba(22, 40, 63, 0.08);
 
   --sans: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --container-pad: clamp(20px, 5vw, 56px);
 
   font: 18px/1.5 var(--sans);
   color-scheme: light;
@@ -75,7 +76,7 @@ button:focus-visible {
   width: 100%;
   max-width: 1180px;
   margin-inline: auto;
-  padding-inline: clamp(20px, 5vw, 56px);
+  padding-inline: var(--container-pad);
 }
 
 .section-heading {

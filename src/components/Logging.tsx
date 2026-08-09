@@ -4,11 +4,10 @@ import { getProjectBySlug } from '../data/projects'
 
 function Logging() {
   return (
-    <section id="logbook" className="logbook">
+    <section id="logbook" className="logging" aria-label="Lab notes">
       <div className="container">
         <h2 className="section-heading">Logging</h2>
-        <p className="section-subtitle">Notes from the ride.</p>
-        <ul className="log-list">
+        <ul className="logging__list">
           {logEntries.map((entry, index) => {
             const linkedProject = entry.projectSlug
               ? getProjectBySlug(entry.projectSlug)
@@ -17,23 +16,24 @@ function Logging() {
             return (
               <li
                 key={index}
-                className={`log-list__row ${
-                  entry.date === 'Next' ? 'log-list__row--next' : ''
+                className={`logging__entry ${
+                  entry.date === 'Next' ? 'logging__entry--next' : ''
                 }`}
               >
-                <p className="log-list__entry">
-                  <span className="log-list__date">{entry.date}</span>
-                  <span className="log-list__text">{entry.title}</span>
-                </p>
+                <div className="logging__meta">
+                  <span className="logging__id">
+                    LOG / {String(index + 1).padStart(3, '0')}
+                  </span>
+                  <span className="logging__date">{entry.date}</span>
+                </div>
+                <p className="logging__text">{entry.title}</p>
                 {entry.description && (
-                  <p className="log-list__description">
-                    {entry.description}
-                  </p>
+                  <p className="logging__description">{entry.description}</p>
                 )}
                 {linkedProject && (
                   <Link
                     href={`/projects/${linkedProject.slug}`}
-                    className="log-list__project-link"
+                    className="logging__link"
                   >
                     → {linkedProject.title}
                   </Link>

@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import './App.css'
 import Nav from './components/Nav'
 import Hero from './components/Hero'
-import CurrentWave from './components/CurrentWave'
+import CurrentStrip from './components/CurrentStrip'
 import Projects from './components/Projects'
 import Logging from './components/Logging'
 import About from './components/About'
@@ -40,7 +40,7 @@ function App() {
         ) : (
           <>
             <Hero />
-            <CurrentWave />
+            <CurrentStrip />
             <Projects />
             <Logging />
             <About />

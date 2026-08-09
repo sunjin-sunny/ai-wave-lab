@@ -6,6 +6,7 @@
   z-index: 10;
   background: var(--sand);
   border-bottom: 1px solid var(--border-soft);
+  transition: transform 0.35s ease;
 }
 
 .site-nav__inner {
@@ -210,184 +211,97 @@
   }
 }
 
-/* ---------- current wave ---------- */
+/* ---------- current strip ---------- */
 
-/* No border-top, and less top padding than other sections — Current Wave
-   stays close behind the hero, still riding its energy instead of starting
-   a fresh "page." */
-.current-wave {
-  padding-top: clamp(32px, 5vw, 56px);
-  padding-bottom: clamp(64px, 9vw, 110px);
+/* A compact status band, not a section — top and bottom hairlines frame it
+   as a distinct "deck" the visitor steps onto right after the hero's wave,
+   rather than a new page starting. */
+.current-strip {
+  border-top: 1px solid var(--border-soft);
+  border-bottom: 1px solid var(--border-soft);
 }
 
-/* The rail wraps the heading too, so the turquoise line reads as one
-   continuous stroke starting right under the tick mark, not a separate
-   rule drawn only around the list. */
-.current-wave__rail {
-  padding-left: clamp(20px, 4vw, 32px);
-  border-left: 2px solid var(--ocean-pale);
-}
-
-.wave-list {
-  list-style: none;
-  margin: 28px 0 0;
-  padding: 0;
+.current-strip__inner {
   display: flex;
-  flex-direction: column;
-  gap: clamp(28px, 4vw, 40px);
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px clamp(20px, 3vw, 32px);
+  padding-block: 16px;
 }
 
-.wave-list__row {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.wave-list__label {
-  font-size: 13px;
+.current-strip__now {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--navy);
+}
+
+.current-strip__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--ocean-bright);
+  animation: breathe 4s ease-in-out infinite;
+}
+
+@keyframes breathe {
+  0%,
+  100% {
+    opacity: 0.4;
+    transform: scale(0.85);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.current-strip__list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px clamp(16px, 2.4vw, 28px);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.current-strip__item {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  font-size: 13px;
+}
+
+.current-strip__label {
+  font-weight: 700;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--ocean);
 }
 
-.wave-list__value {
-  font-size: clamp(22px, 3vw, 30px);
-  line-height: 1.2;
-  color: var(--navy);
-  font-weight: 500;
+.current-strip__value {
+  color: var(--navy-soft);
 }
 
-/* ---------- projects ---------- */
-
-/* No border-top, and more room than its neighbors — Selected Waves is the
-   "expansive" section, so its whitespace should feel different in kind,
-   not just in amount. */
-.projects {
-  padding-block: clamp(72px, 10vw, 130px);
-}
-
-.project-list {
-  list-style: none;
-  margin: 32px 0 0;
-  padding: 0;
-}
-
-.project-row {
-  position: relative;
-  display: flex;
-  gap: clamp(16px, 4vw, 40px);
-  padding: clamp(32px, 5vw, 48px) clamp(12px, 2vw, 20px);
-  border-top: 1px solid var(--border);
-  transition: background-color 0.5s ease;
-}
-
-/* The first (current/flagship) wave isn't fenced off from the heading
-   above it, and gets more space and a larger number/title — later waves
-   stay compact so the list reads as curated, not a repeated component. */
-.project-row:first-child {
-  border-top: none;
-  padding-top: clamp(4px, 1.5vw, 16px);
-  padding-bottom: clamp(40px, 6vw, 64px);
-}
-
-.project-row:first-child .project-row__number {
-  font-size: 15px;
-  color: var(--ocean);
-}
-
-.project-row:first-child .project-row__title {
-  font-size: clamp(30px, 4.6vw, 54px);
-}
-
-.project-row:last-child {
-  border-bottom: 1px solid var(--border-soft);
-}
-
-.project-row::before {
-  content: '';
-  position: absolute;
-  top: -1px;
-  left: 0;
-  width: 100%;
-  height: 2px;
-  background: var(--ocean-bright);
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
-  pointer-events: none;
-}
-
-.project-row:hover {
-  background-color: var(--sand-deep);
-}
-
-.project-row:hover::before {
-  transform: scaleX(1);
-}
+/* ---------- shared project metadata (reused by the carousel below,
+   the project detail page, and the waves archive placeholder) ---------- */
 
 .project-row__number {
   flex: 0 0 auto;
-  padding-top: 4px;
   font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--gray-light);
-  transition: color 0.5s ease;
-}
-
-.project-row:hover .project-row__number {
-  color: var(--ocean);
-}
-
-/* Desktop lays title+status side by side (an editorial two-column head)
-   with description and tags spanning full width below. Mobile switches
-   to a single stacked column with a different reading order — see the
-   max-width: 640px override — using the same elements, just reordered. */
-.project-row__body {
-  flex: 1 1 auto;
-  min-width: 0;
-  display: grid;
-  grid-template-columns: 1fr auto;
-  grid-template-areas:
-    'title status'
-    'description description'
-    'tags tags';
-  column-gap: 24px;
-  row-gap: 10px;
-  align-items: baseline;
-}
-
-.project-row__title {
-  grid-area: title;
-  font-size: clamp(26px, 3.6vw, 40px);
-  letter-spacing: -0.01em;
-  font-weight: 600;
-  transition: transform 0.5s ease;
-}
-
-.project-row:hover .project-row__title {
-  transform: translateX(6px);
-}
-
-/* The title link's ::after is stretched over the whole row, so the entire
-   row is clickable while the visible/focusable link stays just the title —
-   the classic "editorial row link" pattern, no button or card styling. */
-.project-row__title-link {
-  color: inherit;
-  text-decoration: none;
-}
-
-.project-row__title-link::after {
-  content: '';
-  position: absolute;
-  inset: 0;
 }
 
 .project-row__status {
-  grid-area: status;
-  align-self: start;
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -446,28 +360,14 @@
   background: var(--ocean-bright);
 }
 
-.project-row:hover
+.wave-slide:hover
   .project-row__status:not(.project-row__status--green-wave):not(
     .project-row__status--riding
   ) {
   color: var(--ocean);
 }
 
-.project-row__description {
-  grid-area: description;
-  max-width: 60ch;
-  line-height: 1.55;
-  color: var(--gray);
-}
-
-/* First wave's description gets a little more room to breathe, matching
-   its larger title — later rows keep the narrower 60ch measure above. */
-.project-row:first-child .project-row__description {
-  max-width: 68ch;
-}
-
 .project-row__tags {
-  grid-area: tags;
   list-style: none;
   display: flex;
   flex-wrap: wrap;
@@ -481,27 +381,293 @@
   transition: color 0.5s ease;
 }
 
-.project-row:hover .project-row__tags {
-  color: var(--ocean);
-}
-
 .project-row__tags li:not(:last-child)::after {
   content: '\00B7';
   margin: 0 10px;
   color: var(--gray-light);
 }
 
-@media (min-width: 700px) {
-  .project-row__tags {
-    justify-content: flex-end;
+.wave-slide:hover .project-row__tags {
+  color: var(--ocean);
+}
+
+/* ---------- selected waves (carousel) ---------- */
+
+.waves {
+  padding-top: clamp(56px, 8vw, 96px);
+  padding-bottom: clamp(64px, 9vw, 110px);
+}
+
+.waves__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px 24px;
+}
+
+.waves__nav {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.waves__index {
+  font-size: 13px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.06em;
+  color: var(--gray-light);
+}
+
+.waves__controls {
+  display: flex;
+  gap: 8px;
+}
+
+.waves__control {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--navy-soft);
+  font: inherit;
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+  transition: border-color 0.3s ease, color 0.3s ease, opacity 0.3s ease;
+}
+
+.waves__control:hover:not(:disabled),
+.waves__control:focus-visible {
+  border-color: var(--ocean);
+  color: var(--ocean);
+}
+
+.waves__control:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+/* The track's left edge lines up exactly with .container's content edge
+   (same formula used there) so the carousel reads as continuing from the
+   heading above it.
+
+   scroll-padding matches the visual padding exactly — without it, Chrome
+   resolves scroll-snap's "start" against the padding edge instead of the
+   first slide, so the carousel loads pre-scrolled by the padding amount.
+
+   padding-right is NOT just a small fixed peek: it has to be big enough
+   that the last slide can actually reach a start-aligned scroll position.
+   With only a small trailing gutter, the browser hits max-scroll before
+   the last slide can become dominant, so it's permanently stuck peeking
+   behind the slide before it — the carousel would never be able to reach
+   "last slide." Tying it to --wave-slide-width (the same value every slide
+   uses — all cards are the same size now) guarantees just enough room, at
+   every breakpoint. */
+.waves__track {
+  --waves-inset-start: calc(
+    max(0px, (100vw - 1180px) / 2) + var(--container-pad)
+  );
+  --wave-slide-width: min(420px, 80vw);
+  --waves-inset-end: max(
+    var(--container-pad),
+    calc(100vw - var(--waves-inset-start) - var(--wave-slide-width))
+  );
+  display: flex;
+  align-items: stretch;
+  gap: clamp(16px, 3vw, 28px);
+  list-style: none;
+  margin: 0;
+  margin-top: clamp(28px, 4vw, 40px);
+  padding-top: 10px;
+  padding-bottom: 28px;
+  padding-left: var(--waves-inset-start);
+  padding-right: var(--waves-inset-end);
+  scroll-padding-left: var(--waves-inset-start);
+  scroll-padding-right: var(--waves-inset-end);
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.waves__track::-webkit-scrollbar {
+  display: none;
+}
+
+.waves__slide-wrap {
+  scroll-snap-align: start;
+  flex: 0 0 auto;
+}
+
+/* Every card shares one size, one number scale, one everything — the only
+   thing that varies between cards is which one is currently active (see
+   .wave-slide--active below), never their static dimensions. The whole
+   card is the link (not a title link stretched over it), so the entire
+   surface is clickable/tappable and gets one focus ring, not just the
+   title text.
+
+   height: 100% matters here: .waves__track is a flex row, so its flex
+   items (.waves__slide-wrap) already stretch to the height of the tallest
+   card by default — but .wave-slide itself (the visible bordered card)
+   only sized to its OWN content unless told to fill that stretched space.
+   A shorter description (e.g. one line instead of two) meant its card
+   visibly fell short of the others even though the invisible wrapper
+   around it was already the right height.
+
+   overflow: hidden + display:flex/column let .wave-slide__top sit flush
+   against the top edge (full-bleed, no padding) so an image's corners get
+   clipped to the card's own border-radius automatically, while
+   .wave-slide__body (below) carries the padding for the text content. */
+.wave-slide {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: var(--wave-slide-width);
+  height: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+  background: var(--sand-deep);
+  border: 1px solid var(--ocean);
+  border-radius: 14px;
+  color: inherit;
+  text-decoration: none;
+  transform: scale(0.985);
+  transform-origin: center;
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.4s ease, opacity 0.4s ease;
+}
+
+.wave-slide:not(.wave-slide--active):not(:hover):not(:focus-visible) {
+  opacity: 0.9;
+}
+
+.wave-slide:hover,
+.wave-slide:focus-visible,
+.wave-slide--active {
+  transform: scale(1.012);
+  border-color: var(--ocean-bright);
+}
+
+/* Fixed aspect ratio — identical on every card, with or without a real
+   image, so the carousel's rhythm doesn't jump as visuals get added over
+   time. 16:10 suits a landscape screenshot; it's overridden below for
+   asset types with different natural proportions. Because the ratio
+   scales off the card's own width (not the viewport), it stays legible
+   and proportionate on mobile without ever letting an image dominate the
+   screen — no separate mobile override needed for that. */
+.wave-slide__top {
+  position: relative;
+  flex: 0 0 auto;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  background: var(--sand-deep);
+}
+
+/* Pixel-art key art (like The Lineup's) tends to run closer to square
+   than a landscape screenshot — 5:4 is a near-exact match for that piece,
+   so object-fit: contain below has essentially nothing to letterbox. */
+.wave-slide__top--pixel-art {
+  aspect-ratio: 5 / 4;
+}
+
+.wave-slide__visual {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Pixel art shouldn't be cropped or blurred the way a screenshot can be —
+   contain keeps the whole piece intact, pixelated keeps upscaling crisp. */
+.wave-slide__visual--pixel-art {
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+.wave-slide__fallback {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  padding: 16px 18px;
+  display: flex;
+  align-items: flex-end;
+}
+
+/* Same font-size/weight/position on every card — this is deliberately
+   small; it's a quiet index mark, not a headline. */
+.wave-slide__number {
+  font-size: 14px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.03em;
+  color: var(--ocean);
+}
+
+.wave-slide__wave-line {
+  position: absolute;
+  left: 18px;
+  right: 18px;
+  bottom: 44px;
+  height: 16px;
+  background-repeat: repeat-x;
+  background-position-y: bottom;
+  background-size: 280px 100%;
+  opacity: 0.7;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 280 16' preserveAspectRatio='none'%3E%3Cpath fill='none' stroke='%230fada0' stroke-width='1.5' d='M0,8 C46,2 94,14 140,8 C186,2 234,14 280,8'/%3E%3C/svg%3E");
+  animation: wave-line-drift 22s linear infinite;
+}
+
+@keyframes wave-line-drift {
+  from {
+    background-position-x: 0;
   }
+  to {
+    background-position-x: 280px;
+  }
+}
+
+.wave-slide__body {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: clamp(18px, 3vw, 24px);
+}
+
+.wave-slide__meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.wave-slide__title {
+  margin-top: 12px;
+  font-size: clamp(22px, 2.6vw, 28px);
+  letter-spacing: -0.01em;
+  font-weight: 600;
+  color: var(--navy);
+}
+
+.wave-slide__description {
+  margin-top: 10px;
+  line-height: 1.5;
+  font-size: 15px;
+  color: var(--gray);
+}
+
+.wave-slide__tags {
+  margin-top: 14px;
 }
 
 /* "Selected Waves" is always a curated slice (see FEATURED_LIMIT in
    Projects.tsx) — this is where the rest will live once there's an
    archive to send people to. */
 .projects__archive-link {
-  margin-top: clamp(28px, 4vw, 40px);
+  margin-top: clamp(20px, 3vw, 32px);
 }
 
 /* ---------- project detail ---------- */
@@ -600,94 +766,87 @@
   color: var(--gray);
 }
 
-/* ---------- logbook ---------- */
+/* ---------- logging (lab notes) ---------- */
 
-/* No border-top, and the tightest padding of any section — Logging is
-   meant to feel like compact field notes, not another full "page." */
-.logbook {
-  padding-top: clamp(40px, 6vw, 72px);
-  padding-bottom: clamp(56px, 8vw, 96px);
+/* The smallest, tightest section on the page by design — this should read
+   as a handful of notes found while scrolling, not another full section. */
+.logging {
+  padding-top: clamp(28px, 4vw, 48px);
+  padding-bottom: clamp(40px, 6vw, 64px);
 }
 
-/* Same rail treatment as Current Wave — a deliberate family resemblance
-   between the two "notes" sections, with Selected Waves breaking the
-   pattern in between. */
-.log-list {
+.logging__list {
   list-style: none;
-  margin: 24px 0 0;
-  padding-left: clamp(20px, 4vw, 32px);
-  border-left: 2px solid var(--ocean-pale);
-  display: flex;
-  flex-direction: column;
-  gap: clamp(14px, 2vw, 18px);
-  max-width: 640px;
+  margin: 16px 0 0;
+  padding: 0;
+  max-width: 560px;
 }
 
-.log-list__row {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
+.logging__entry {
+  padding-block: 10px;
+  border-top: 1px solid var(--border-soft);
 }
 
-.log-list__entry {
+.logging__entry:last-child {
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.logging__meta {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
-  column-gap: 10px;
+  gap: 4px 10px;
 }
 
-/* Timestamp-like: tabular figures and a leading dash, closer to a log
-   marker than the uppercase tracked "label" style used elsewhere. */
-.log-list__date {
-  font-size: 12px;
-  font-weight: 500;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: 0.03em;
+.logging__id {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
   color: var(--ocean);
 }
 
-.log-list__date::before {
-  content: '—';
-  margin-right: 8px;
-  color: var(--ocean-pale);
+.logging__date {
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+  color: var(--gray-light);
 }
 
-.log-list__text {
+.logging__text {
+  margin-top: 3px;
+  font-size: 15px;
+  line-height: 1.4;
   color: var(--navy);
 }
 
-.log-list__description {
-  font-size: 15px;
+.logging__description {
+  margin-top: 2px;
+  font-size: 13px;
   color: var(--gray);
 }
 
-.log-list__project-link {
-  font-size: 13px;
+.logging__link {
+  display: inline-block;
+  margin-top: 3px;
+  font-size: 12px;
   font-weight: 600;
   color: var(--ocean);
   text-decoration: none;
-  width: fit-content;
 }
 
-.log-list__project-link:hover,
-.log-list__project-link:focus-visible {
+.logging__link:hover,
+.logging__link:focus-visible {
   text-decoration: underline;
   text-underline-offset: 3px;
 }
 
-.log-list__row:not(.log-list__row--next):hover .log-list__date {
-  color: var(--ocean-bright);
-}
-
-.log-list__row--next .log-list__date {
+.logging__entry--next .logging__id,
+.logging__entry--next .logging__date {
   color: var(--coral);
 }
 
-.log-list__row--next .log-list__date::before {
-  color: var(--coral);
-}
-
-.log-list__row--next .log-list__text {
+.logging__entry--next .logging__text {
   font-style: italic;
   color: var(--navy-soft);
 }
@@ -846,27 +1005,18 @@
     display: none;
   }
 
-  .project-row {
-    flex-direction: column;
+  /* All cards already share one width — this just redefines the shared
+     value for narrow screens (also keeps .waves__track's trailing scroll
+     room correctly sized here, since it's derived from the same variable). */
+  .waves__track {
+    --wave-slide-width: 86vw;
   }
 
-  /* Selected Waves mobile hierarchy: title, then description, then status,
-     then tags — status moves out from beside the title (see the desktop
-     grid-template-areas above) so it doesn't compete with the title line. */
-  .project-row__body {
-    grid-template-columns: 1fr;
-    grid-template-areas:
-      'title'
-      'description'
-      'status'
-      'tags';
-  }
-
-  /* Mobile is its own composition, not a narrowed desktop column: later
-     waves nudge slightly right as you scroll instead of staying pinned
-     to the same left edge as the flagship one above them. */
-  .project-row:not(:first-child) {
-    padding-left: calc(clamp(12px, 2vw, 20px) + 14px);
+  /* Nav tucks away while scrolling down so it stops reading as a fixed
+     document frame, and returns on the smallest upward scroll — see
+     Nav.tsx for the logic. Desktop nav is unaffected. */
+  .site-nav--hidden {
+    transform: translateY(-100%);
   }
 
   .site-footer__inner {

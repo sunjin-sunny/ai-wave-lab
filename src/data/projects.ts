@@ -25,6 +25,13 @@ export const PROJECT_STATUS: Record<
   lineup: { label: 'LINEUP', description: 'Idea waiting to be built' },
 }
 
+// Selected Waves carousel card visual. "screenshot" and "artwork" are shown
+// full-bleed (object-fit: cover); "pixel-art" is shown uncropped so nothing
+// gets sliced off (object-fit: contain, with crisp non-blurred scaling).
+// "animated" just means the file is a GIF/WebP — <img> plays those on its
+// own, no special handling needed. Video isn't supported yet.
+export type ProjectVisualType = 'screenshot' | 'artwork' | 'pixel-art' | 'animated'
+
 export interface Project {
   id: string
   waveNumber: string
@@ -40,6 +47,15 @@ export interface Project {
   externalUrl?: string
   githubUrl?: string
   heroImage?: string
+
+  // Selected Waves carousel card visual — separate from heroImage above
+  // (that's the full-width detail-page banner; this is the small, fixed
+  // aspect-ratio area on the card itself, so the two can reasonably be
+  // different assets). All optional: WaveSlide falls back to the branded
+  // number + wave-line treatment whenever visualSrc is absent.
+  visualType?: ProjectVisualType
+  visualSrc?: string
+  visualAlt?: string
 
   // Optional detail-page content. Left blank until a project has a real
   // story to tell — ProjectDetail.tsx only renders sections with content.
@@ -76,6 +92,10 @@ export const projects: Project[] = [
     tags: ['Game', 'Surf', 'Learning'],
     year: 2026,
     featured: true,
+    visualType: 'pixel-art',
+    visualSrc: '/images/the-lineup-key-visual.png',
+    visualAlt:
+      'Pixel-art key artwork for The Lineup surfing game: surfers paddling out, waiting their turn, and taking off on a wave, with numbered callouts for the paddle-out, wait-your-turn, take-off, and priority-check gameplay steps.',
   },
   {
     id: 'travel-companion',
