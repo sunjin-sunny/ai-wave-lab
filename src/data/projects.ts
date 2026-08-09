@@ -32,6 +32,24 @@ export const PROJECT_STATUS: Record<
 // own, no special handling needed. Video isn't supported yet.
 export type ProjectVisualType = 'screenshot' | 'artwork' | 'pixel-art' | 'animated'
 
+// A single Top Turn (iteration/improvement) gets its own short title plus an
+// optional elaboration — unlike Wipeouts/Lessons, which read fine as flat
+// one-line notes, an iteration usually needs a name before the detail makes
+// sense ("Redesigned onboarding" then, optionally, why/what changed).
+export interface ProjectMilestone {
+  title: string
+  note?: string
+}
+
+// Prepared for a future secondary-visuals gallery — not rendered anywhere
+// yet (see ProjectDetail.tsx). Kept as a plain optional field rather than
+// building any UI for it now.
+export interface ProjectScreenshot {
+  src: string
+  alt: string
+  caption?: string
+}
+
 export interface Project {
   id: string
   waveNumber: string
@@ -46,13 +64,11 @@ export interface Project {
   featured: boolean
   externalUrl?: string
   githubUrl?: string
-  heroImage?: string
 
-  // Selected Waves carousel card visual — separate from heroImage above
-  // (that's the full-width detail-page banner; this is the small, fixed
-  // aspect-ratio area on the card itself, so the two can reasonably be
-  // different assets). All optional: WaveSlide falls back to the branded
-  // number + wave-line treatment whenever visualSrc is absent.
+  // The project's visual identity, used both as the small Selected Waves
+  // carousel card image AND the large project-detail hero visual. All
+  // optional: both places fall back to the branded number + wave-line
+  // treatment whenever visualSrc is absent.
   visualType?: ProjectVisualType
   visualSrc?: string
   visualAlt?: string
@@ -62,10 +78,11 @@ export interface Project {
   overview?: string
   takeOff?: string
   theRide?: string
-  topTurns?: string[]
+  topTurns?: ProjectMilestone[]
   wipeouts?: string[]
   lessons?: string[]
   techStack?: string[]
+  screenshots?: ProjectScreenshot[]
 }
 
 export const projects: Project[] = [

@@ -670,12 +670,103 @@
   margin-top: clamp(20px, 3vw, 32px);
 }
 
-/* ---------- project detail ---------- */
+/* ---------- project hero ----------
+   Used only by ProjectDetail.tsx's success path — a project-specific
+   opener (visual + wave number/status/title/description/tags), distinct
+   from the plain .project-detail__header/__title used by WavesArchive's
+   simple placeholder page and the "not found" state below. */
 
-.project-detail {
-  padding-block: clamp(64px, 9vw, 120px);
+.project-hero {
+  padding-top: clamp(48px, 7vw, 80px);
 }
 
+.project-hero__layout {
+  margin-top: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(28px, 4vw, 40px);
+}
+
+@media (min-width: 900px) {
+  .project-hero__layout {
+    flex-direction: row;
+    align-items: center;
+    gap: clamp(40px, 5vw, 64px);
+  }
+
+  .project-hero__visual {
+    flex: 1 1 55%;
+    min-width: 0;
+  }
+
+  .project-hero__meta {
+    flex: 1 1 45%;
+  }
+}
+
+/* Same rounded-turquoise-frame language as the carousel cards, just much
+   larger — ties the detail page visually back to where the visitor came
+   from. Real images size to their own natural ratio (never cropped, see
+   .project-hero__image below); only the branded fallback needs an
+   explicit box shape, since it has no intrinsic size of its own. */
+.project-hero__visual {
+  position: relative;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid var(--ocean);
+  background: var(--sand-deep);
+}
+
+.project-hero__visual--fallback {
+  aspect-ratio: 16 / 10;
+}
+
+.project-hero__image {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 70vh;
+  object-fit: contain;
+}
+
+.project-hero__visual--pixel-art .project-hero__image {
+  image-rendering: pixelated;
+}
+
+.project-hero__tag-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+}
+
+.project-hero__title {
+  margin-top: 16px;
+  font-size: clamp(32px, 5vw, 56px);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+}
+
+.project-hero__description {
+  margin-top: 16px;
+  max-width: 52ch;
+  font-size: 17px;
+  line-height: 1.55;
+  color: var(--gray);
+}
+
+.project-hero__tags {
+  margin-top: 20px;
+}
+
+/* ---------- project detail (narrative sections) ---------- */
+
+.project-detail {
+  padding-top: clamp(40px, 6vw, 64px);
+  padding-bottom: clamp(64px, 9vw, 120px);
+}
+
+/* Plain header used only by WavesArchive.tsx's simple placeholder page. */
 .project-detail__header {
   margin-top: 32px;
 }
@@ -687,26 +778,11 @@
   letter-spacing: -0.02em;
 }
 
-.project-detail__meta {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px 20px;
-  margin-top: 16px;
-}
-
 .project-detail__description {
   margin-top: 20px;
   max-width: 60ch;
   font-size: 18px;
   color: var(--gray);
-}
-
-.project-detail__hero-image {
-  display: block;
-  width: 100%;
-  height: auto;
-  margin-top: 32px;
 }
 
 .project-detail__section {
@@ -731,6 +807,101 @@
 
 .project-detail__section ul {
   padding-left: 20px;
+}
+
+/* Overview reads broader and more introductory than the sections below. */
+.project-detail__section--overview {
+  max-width: 720px;
+}
+
+.project-detail__section--overview p {
+  font-size: 19px;
+  line-height: 1.6;
+}
+
+/* Take Off feels like a personal aside rather than a formal section — a
+   left rule instead of (or alongside) the standard top divider, echoing
+   the rail motif used for Current Wave/Logging earlier on the homepage. */
+.project-detail__section--take-off {
+  max-width: 560px;
+  padding-left: 20px;
+  border-left: 2px solid var(--ocean-pale);
+}
+
+.project-milestones {
+  list-style: none;
+  margin: 20px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.project-milestone {
+  display: flex;
+  gap: 16px;
+}
+
+.project-milestone__index {
+  flex: none;
+  padding-top: 2px;
+  font-size: 13px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.06em;
+  color: var(--ocean);
+}
+
+.project-milestone__title {
+  font-weight: 600;
+  color: var(--navy);
+}
+
+.project-milestone__note {
+  margin-top: 4px;
+  line-height: 1.5;
+  color: var(--navy-soft);
+}
+
+/* Wipeouts are meant to feel like smaller field notes — compact rows
+   rather than prose, echoing Logging's rhythm rather than Overview's. */
+.project-fieldnotes {
+  list-style: none;
+  margin: 16px 0 0;
+  padding: 0;
+  max-width: 560px;
+}
+
+.project-fieldnotes li {
+  padding-block: 10px;
+  border-top: 1px solid var(--border-soft);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--navy-soft);
+}
+
+.project-fieldnotes li:last-child {
+  border-bottom: 1px solid var(--border-soft);
+}
+
+/* Built With is compact metadata, not prose — same inline middot-separated
+   treatment as the carousel's tag list, not a bulleted paragraph list. */
+.project-detail__meta-list {
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--navy-soft);
+}
+
+.project-detail__meta-list li:not(:last-child)::after {
+  content: '\00B7';
+  margin: 0 14px;
+  color: var(--gray-light);
 }
 
 .project-detail__links {
@@ -764,6 +935,22 @@
 .project-detail__missing {
   margin-top: 40px;
   color: var(--gray);
+}
+
+/* Restrained prev/next — text links, not buttons. */
+.project-detail__pager {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 16px 24px;
+  margin-top: clamp(48px, 7vw, 80px);
+  padding-top: 24px;
+  border-top: 1px solid var(--border-soft);
+}
+
+.project-detail__pager-link--next {
+  margin-left: auto;
+  text-align: right;
 }
 
 /* ---------- logging (lab notes) ---------- */
