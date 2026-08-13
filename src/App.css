@@ -676,62 +676,39 @@
    from the plain .project-detail__header/__title used by WavesArchive's
    simple placeholder page and the "not found" state below. */
 
+/* =========================================================
+   PROJECT DETAIL — CASE STUDY LAYOUT
+   ========================================================= */
+
+
+/* ---------- project hero ---------- */
+
 .project-hero {
-  padding-top: clamp(48px, 7vw, 80px);
+  padding-top: clamp(40px, 6vw, 72px);
+  padding-bottom: clamp(48px, 7vw, 80px);
 }
+
+
+.project-detail__back {
+  display: inline-block;
+  margin-bottom: 28px;
+}
+
 
 .project-hero__layout {
-  margin-top: 32px;
-  display: flex;
-  flex-direction: column;
-  gap: clamp(28px, 4vw, 40px);
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.55fr);
+  gap: clamp(36px, 6vw, 76px);
+  align-items: center;
 }
 
-@media (min-width: 900px) {
-  .project-hero__layout {
-    flex-direction: row;
-    align-items: center;
-    gap: clamp(40px, 5vw, 64px);
-  }
 
-  .project-hero__visual {
-    flex: 1 1 55%;
-    min-width: 0;
-  }
+/* meta */
 
-  .project-hero__meta {
-    flex: 1 1 45%;
-  }
+.project-hero__meta {
+  min-width: 0;
 }
 
-/* Same rounded-turquoise-frame language as the carousel cards, just much
-   larger — ties the detail page visually back to where the visitor came
-   from. Real images size to their own natural ratio (never cropped, see
-   .project-hero__image below); only the branded fallback needs an
-   explicit box shape, since it has no intrinsic size of its own. */
-.project-hero__visual {
-  position: relative;
-  border-radius: 14px;
-  overflow: hidden;
-  border: 1px solid var(--ocean);
-  background: var(--sand-deep);
-}
-
-.project-hero__visual--fallback {
-  aspect-ratio: 16 / 10;
-}
-
-.project-hero__image {
-  display: block;
-  width: 100%;
-  height: auto;
-  max-height: 70vh;
-  object-fit: contain;
-}
-
-.project-hero__visual--pixel-art .project-hero__image {
-  image-rendering: pixelated;
-}
 
 .project-hero__tag-row {
   display: flex;
@@ -740,364 +717,1285 @@
   gap: 8px 16px;
 }
 
+
 .project-hero__title {
   margin-top: 16px;
-  font-size: clamp(32px, 5vw, 56px);
-  line-height: 1.05;
-  letter-spacing: -0.02em;
-}
 
-.project-hero__description {
-  margin-top: 16px;
-  max-width: 52ch;
-  font-size: 17px;
-  line-height: 1.55;
-  color: var(--gray);
-}
+  font-size: clamp(42px, 5.4vw, 70px);
+  line-height: 0.98;
+  letter-spacing: -0.035em;
 
-.project-hero__tags {
-  margin-top: 20px;
-}
-
-/* ---------- project detail (narrative sections) ---------- */
-
-.project-detail {
-  padding-top: clamp(40px, 6vw, 64px);
-  padding-bottom: clamp(64px, 9vw, 120px);
-}
-
-/* Plain header used only by WavesArchive.tsx's simple placeholder page. */
-.project-detail__header {
-  margin-top: 32px;
-}
-
-.project-detail__title {
-  margin-top: 12px;
-  font-size: clamp(36px, 6vw, 64px);
-  line-height: 1.05;
-  letter-spacing: -0.02em;
-}
-
-.project-detail__description {
-  margin-top: 20px;
-  max-width: 60ch;
-  font-size: 18px;
-  color: var(--gray);
-}
-
-.project-detail__section {
-  max-width: 680px;
-  margin-top: clamp(40px, 6vw, 64px);
-  padding-top: clamp(40px, 6vw, 64px);
-  border-top: 1px solid var(--border-soft);
-}
-
-.project-detail__section-note {
-  margin-top: 4px;
-  font-size: 14px;
-  font-style: italic;
-  color: var(--gray-light);
-}
-
-.project-detail__section p,
-.project-detail__section ul {
-  margin-top: 16px;
-  color: var(--navy-soft);
-}
-
-.project-detail__section ul {
-  padding-left: 20px;
-}
-
-/* Overview reads broader and more introductory than the sections below. */
-.project-detail__section--overview {
-  max-width: 720px;
-}
-
-.project-detail__section--overview p {
-  font-size: 19px;
-  line-height: 1.6;
-}
-
-/* Take Off feels like a personal aside rather than a formal section — a
-   left rule instead of (or alongside) the standard top divider, echoing
-   the rail motif used for Current Wave/Logging earlier on the homepage. */
-.project-detail__section--take-off {
-  max-width: 560px;
-  padding-left: 20px;
-  border-left: 2px solid var(--ocean-pale);
-}
-
-.project-milestones {
-  list-style: none;
-  margin: 20px 0 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.project-milestone {
-  display: flex;
-  gap: 16px;
-}
-
-.project-milestone__index {
-  flex: none;
-  padding-top: 2px;
-  font-size: 13px;
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: 0.06em;
-  color: var(--ocean);
-}
-
-.project-milestone__title {
-  font-weight: 600;
   color: var(--navy);
 }
 
-.project-milestone__note {
-  margin-top: 4px;
-  line-height: 1.5;
+
+.project-hero__description {
+  margin-top: 24px;
+
+  max-width: 38ch;
+
+  font-size: clamp(17px, 1.7vw, 20px);
+  line-height: 1.55;
+
   color: var(--navy-soft);
 }
 
-/* Wipeouts are meant to feel like smaller field notes — compact rows
-   rather than prose, echoing Logging's rhythm rather than Overview's. */
-.project-fieldnotes {
+
+/* tags as small outlined chips */
+
+.project-hero__tags {
   list-style: none;
-  margin: 16px 0 0;
+
+  display: flex;
+  flex-wrap: wrap;
+
+  gap: 8px;
+
+  margin: 24px 0 0;
   padding: 0;
-  max-width: 560px;
 }
 
-.project-fieldnotes li {
-  padding-block: 10px;
+
+.project-hero__tags li {
+  padding: 7px 13px;
+
+  border: 1px solid var(--ocean);
+  border-radius: 6px;
+
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+
+  color: var(--ocean);
+}
+
+
+/* CTA */
+
+.project-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+
+  margin-top: 30px;
+}
+
+
+.project-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  min-height: 44px;
+
+  padding: 11px 18px;
+
+  border: 1px solid var(--ocean);
+  border-radius: 5px;
+
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+
+  text-decoration: none;
+
+  transition:
+    transform 0.25s ease,
+    background 0.25s ease,
+    color 0.25s ease,
+    border-color 0.25s ease;
+}
+
+
+.project-cta:hover,
+.project-cta:focus-visible {
+  transform: translateY(-2px);
+}
+
+
+.project-cta--primary {
+  background: var(--ocean);
+  color: var(--sand);
+}
+
+
+.project-cta--primary:hover,
+.project-cta--primary:focus-visible {
+  background: var(--ocean-bright);
+  border-color: var(--ocean-bright);
+}
+
+
+.project-cta--secondary {
+  background: transparent;
+  color: var(--ocean);
+}
+
+
+.project-hero__live-note {
+  margin-top: 10px;
+
+  font-size: 12px;
+  color: var(--gray-light);
+}
+
+
+/* visual */
+
+.project-hero__visual {
+  position: relative;
+
+  width: 100%;
+
+  overflow: hidden;
+
+  border: 1px solid var(--ocean);
+  border-radius: 12px;
+
+  background: var(--sand-deep);
+}
+
+
+.project-hero__visual--fallback {
+  aspect-ratio: 5 / 4;
+}
+
+
+.project-hero__image {
+  display: block;
+
+  width: 100%;
+  height: auto;
+
+  object-fit: contain;
+}
+
+
+.project-hero__visual--pixel-art .project-hero__image {
+  image-rendering: pixelated;
+}
+
+
+
+/* =========================================================
+   MAIN STORY
+   ========================================================= */
+
+.project-detail {
+  padding-top: 0;
+  padding-bottom: clamp(72px, 9vw, 120px);
+}
+
+
+/* full-width divider rows */
+
+.project-story-row {
+  display: grid;
+  grid-template-columns: minmax(180px, 240px) minmax(0, 1fr);
+  gap: clamp(32px, 7vw, 96px);
+
+  align-items: start;
+
+  padding-block: clamp(34px, 5vw, 56px);
+
   border-top: 1px solid var(--border-soft);
-  font-size: 14px;
-  line-height: 1.5;
+}
+
+
+.project-story-row__label {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+
+.project-story-row__icon {
+  flex: none;
+
+  width: 44px;
+  height: 44px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background: var(--sand-deep);
+
+  font-size: 20px;
+
+  color: var(--navy);
+}
+
+
+.project-story-row__content {
+  max-width: 760px;
+
+  padding-top: 1px;
+}
+
+
+.project-story-row__content p {
+  margin: 0;
+
+  font-size: clamp(16px, 1.5vw, 18px);
+  line-height: 1.65;
+
   color: var(--navy-soft);
 }
 
-.project-fieldnotes li:last-child {
+
+.project-detail__section-note {
+  margin-top: 5px;
+
+  max-width: 20ch;
+
+  font-size: 13px;
+  line-height: 1.45;
+
+  font-style: italic;
+
+  color: var(--gray);
+}
+
+
+
+/* =========================================================
+   TOP TURNS / WIPEOUTS / LESSONS
+   ========================================================= */
+
+.project-insights-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+
+  border-top: 1px solid var(--border-soft);
   border-bottom: 1px solid var(--border-soft);
 }
 
-/* Built With is compact metadata, not prose — same inline middot-separated
-   treatment as the carousel's tag list, not a bulleted paragraph list. */
-.project-detail__meta-list {
-  margin: 16px 0 0;
-  padding: 0;
-  list-style: none;
+
+.project-insight {
+  min-width: 0;
+
+  padding:
+    clamp(32px, 4vw, 48px)
+    clamp(22px, 3vw, 36px);
+}
+
+
+.project-insight:first-child {
+  padding-left: 0;
+}
+
+
+.project-insight:last-child {
+  padding-right: 0;
+}
+
+
+.project-insight + .project-insight {
+  border-left: 1px solid var(--border-soft);
+}
+
+
+.project-insight__heading {
   display: flex;
-  flex-wrap: wrap;
-  font-size: 13px;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  align-items: flex-start;
+  gap: 14px;
+
+  margin-bottom: 24px;
+}
+
+
+/* top turns */
+
+.project-milestones {
+  list-style: none;
+
+  margin: 0;
+  padding: 0;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 16px;
+}
+
+
+.project-milestone {
+  display: flex;
+  align-items: flex-start;
+
+  gap: 12px;
+}
+
+
+.project-milestone__index {
+  flex: none;
+
+  width: 22px;
+  height: 22px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid var(--ocean);
+  border-radius: 50%;
+
+  font-size: 11px;
+  font-weight: 700;
+
+  color: var(--ocean);
+}
+
+
+.project-milestone__title {
+  margin: 0;
+
+  font-size: 14px;
+  line-height: 1.4;
+
+  font-weight: 650;
+
+  color: var(--navy);
+}
+
+
+.project-milestone__note {
+  margin-top: 4px;
+
+  font-size: 12px;
+  line-height: 1.5;
+
+  color: var(--gray);
+}
+
+
+/* wipeouts / lessons */
+
+.project-insight__list {
+  margin: 0;
+  padding-left: 18px;
+}
+
+
+.project-insight__list li {
+  margin-bottom: 12px;
+
+  font-size: 14px;
+  line-height: 1.5;
+
   color: var(--navy-soft);
 }
 
-.project-detail__meta-list li:not(:last-child)::after {
-  content: '\00B7';
-  margin: 0 14px;
-  color: var(--gray-light);
+
+
+/* =========================================================
+   TECH STACK
+   ========================================================= */
+
+.project-tech {
+  display: grid;
+  grid-template-columns: minmax(180px, 240px) minmax(0, 1fr);
+  gap: clamp(32px, 7vw, 96px);
+
+  align-items: center;
+
+  padding-block: clamp(32px, 5vw, 48px);
+
+  border-bottom: 1px solid var(--border-soft);
 }
 
-.project-detail__links {
+
+.project-tech__heading {
+  display: flex;
+  align-items: flex-start;
+
+  gap: 16px;
+}
+
+
+.project-tech__list {
+  list-style: none;
+
   display: flex;
   flex-wrap: wrap;
-  gap: 24px;
-  margin-top: 16px;
+
+  gap: 10px;
+
+  margin: 0;
   padding: 0;
-  list-style: none;
 }
 
-.project-detail__links a {
-  font-size: 14px;
+
+.project-tech__list li {
+  padding: 8px 18px;
+
+  border: 1px solid var(--ocean);
+  border-radius: 5px;
+
+  font-size: 12px;
   font-weight: 600;
-  letter-spacing: 0.02em;
+
   color: var(--ocean);
-  text-decoration: underline;
-  text-underline-offset: 3px;
 }
+
+
+
+/* =========================================================
+   BOTTOM CTA
+   ========================================================= */
+
+.project-bottom-cta {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+
+  gap: 28px;
+
+  align-items: center;
+
+  margin-top: 32px;
+
+  padding: 24px 28px;
+
+  border: 1px solid var(--border);
+  border-radius: 12px;
+
+  background: rgba(255, 255, 255, 0.14);
+}
+
+
+.project-bottom-cta h2 {
+  font-size: 17px;
+  color: var(--navy);
+}
+
+
+.project-bottom-cta p {
+  margin-top: 5px;
+
+  font-size: 13px;
+  line-height: 1.45;
+
+  color: var(--gray);
+}
+
+
+.project-bottom-cta__button {
+  min-width: 250px;
+}
+
+
+
+/* =========================================================
+   PLACEHOLDER / PAGER
+   ========================================================= */
 
 .project-detail__placeholder {
-  max-width: 60ch;
-  margin-top: clamp(40px, 6vw, 64px);
-  padding-top: clamp(40px, 6vw, 64px);
+  margin-top: 48px;
+
+  padding-top: 40px;
+
   border-top: 1px solid var(--border-soft);
+
   font-size: 15px;
   font-style: italic;
+
   color: var(--gray-light);
 }
+
 
 .project-detail__missing {
   margin-top: 40px;
   color: var(--gray);
 }
 
-/* Restrained prev/next — text links, not buttons. */
+
 .project-detail__pager {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
+
   gap: 16px 24px;
+
   margin-top: clamp(48px, 7vw, 80px);
   padding-top: 24px;
+
   border-top: 1px solid var(--border-soft);
 }
+
 
 .project-detail__pager-link--next {
   margin-left: auto;
   text-align: right;
 }
 
+
+
+/* =========================================================
+   TABLET
+   ========================================================= */
+
+@media (max-width: 899px) {
+
+  .project-hero__layout {
+    grid-template-columns: 1fr;
+    gap: 36px;
+  }
+
+
+  .project-hero__meta {
+    order: 1;
+  }
+
+
+  .project-hero__visual {
+    order: 2;
+  }
+
+
+  .project-hero__description {
+    max-width: 52ch;
+  }
+
+
+  .project-story-row,
+  .project-tech {
+    grid-template-columns: 1fr;
+    gap: 22px;
+  }
+
+
+  .project-story-row__content {
+    max-width: 100%;
+  }
+
+
+  .project-insights-grid {
+    grid-template-columns: 1fr;
+  }
+
+
+  .project-insight {
+    padding-inline: 0;
+  }
+
+
+  .project-insight + .project-insight {
+    border-left: 0;
+    border-top: 1px solid var(--border-soft);
+  }
+
+
+  .project-bottom-cta {
+    grid-template-columns: 1fr;
+  }
+
+
+  .project-bottom-cta__button {
+    width: fit-content;
+    min-width: 0;
+  }
+
+}
+
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 640px) {
+
+  .project-hero {
+    padding-top: 28px;
+    padding-bottom: 42px;
+  }
+
+
+  .project-detail__back {
+    margin-bottom: 22px;
+  }
+
+
+  .project-hero__title {
+    font-size: clamp(38px, 13vw, 52px);
+  }
+
+
+  .project-hero__description {
+    margin-top: 18px;
+
+    font-size: 16px;
+  }
+
+
+  .project-hero__tags {
+    margin-top: 20px;
+  }
+
+
+  .project-hero__actions {
+    display: grid;
+    grid-template-columns: 1fr;
+
+    margin-top: 24px;
+  }
+
+
+  .project-cta {
+    width: 100%;
+  }
+
+
+  .project-story-row {
+    padding-block: 32px;
+  }
+
+
+  .project-story-row__label {
+    gap: 12px;
+  }
+
+
+  .project-story-row__icon {
+    width: 38px;
+    height: 38px;
+
+    font-size: 17px;
+  }
+
+
+  .project-story-row__content p {
+    font-size: 16px;
+    line-height: 1.65;
+  }
+
+
+  .project-insight {
+    padding-block: 32px;
+  }
+
+
+  .project-insight__heading {
+    margin-bottom: 20px;
+  }
+
+
+  .project-tech {
+    padding-block: 32px;
+  }
+
+
+  .project-tech__list {
+    gap: 8px;
+  }
+
+
+  .project-tech__list li {
+    padding: 7px 12px;
+  }
+
+
+  .project-bottom-cta {
+    margin-top: 24px;
+
+    padding: 20px;
+
+    border-radius: 10px;
+  }
+
+
+  .project-detail__pager {
+    flex-direction: column;
+  }
+
+
+  .project-detail__pager-link--next {
+    margin-left: 0;
+    text-align: left;
+  }
+
+}
+
 /* ---------- logging (lab notes) ---------- */
+/* =========================================================
+   ABOUT
+   ========================================================= */
 
-/* The smallest, tightest section on the page by design — this should read
-   as a handful of notes found while scrolling, not another full section. */
-.logging {
-  padding-top: clamp(28px, 4vw, 48px);
-  padding-bottom: clamp(40px, 6vw, 64px);
-}
+.about {
+  padding-top: clamp(64px, 8vw, 96px);
+  padding-bottom: 48px;
 
-.logging__list {
-  list-style: none;
-  margin: 16px 0 0;
-  padding: 0;
-  max-width: 560px;
-}
-
-.logging__entry {
-  padding-block: 10px;
   border-top: 1px solid var(--border-soft);
 }
 
-.logging__entry:last-child {
-  border-bottom: 1px solid var(--border-soft);
+
+.about__header {
+  margin-bottom: 34px;
 }
 
-.logging__meta {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 4px 10px;
-}
 
-.logging__id {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--ocean);
-}
+.about__header-note {
+  margin-top: 5px;
 
-.logging__date {
-  font-size: 11px;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: 0.02em;
-  color: var(--gray-light);
-}
-
-.logging__text {
-  margin-top: 3px;
-  font-size: 15px;
-  line-height: 1.4;
-  color: var(--navy);
-}
-
-.logging__description {
-  margin-top: 2px;
   font-size: 13px;
+  font-style: italic;
+
   color: var(--gray);
 }
 
-.logging__link {
-  display: inline-block;
-  margin-top: 3px;
-  font-size: 12px;
+
+
+/* =========================================================
+   ABOUT — MAIN
+   ========================================================= */
+
+.about__main {
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, 0.85fr)
+    minmax(360px, 1.15fr);
+
+  gap: clamp(48px, 8vw, 110px);
+
+  align-items: center;
+
+  padding-bottom: clamp(52px, 7vw, 80px);
+}
+
+
+.about__copy {
+  max-width: 520px;
+}
+
+
+.about__greeting {
+  margin: 0;
+
+  font-size: clamp(27px, 2.8vw, 38px);
+  line-height: 1.22;
+
   font-weight: 600;
-  color: var(--ocean);
-  text-decoration: none;
-}
 
-.logging__link:hover,
-.logging__link:focus-visible {
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-
-.logging__entry--next .logging__id,
-.logging__entry--next .logging__date {
-  color: var(--coral);
-}
-
-.logging__entry--next .logging__text {
-  font-style: italic;
-  color: var(--navy-soft);
-}
-
-/* ---------- about ---------- */
-
-/* No border-top, no visible label (see .visually-hidden on the heading in
-   About.tsx), and the least top padding of any section — About should
-   emerge quietly out of Logging rather than announce a new "slide." */
-.about {
-  padding-top: clamp(16px, 3vw, 32px);
-  padding-bottom: clamp(72px, 10vw, 130px);
-}
-
-.about__body {
-  max-width: 640px;
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-  font-size: 18px;
-  line-height: 1.6;
-  color: var(--navy-soft);
-}
-
-/* With the "ABOUT" label hidden, the opening line carries a touch more
-   weight so it still reads as a clear (if quiet) arrival. */
-.about__body > p:first-child {
-  font-size: clamp(19px, 2.2vw, 22px);
   color: var(--navy);
 }
+
+
+.about__traits {
+  margin-top: 30px;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 12px;
+}
+
+
+.about__trait {
+  margin: 0;
+
+  font-size: clamp(15px, 1.35vw, 17px);
+  line-height: 1.55;
+
+  color: var(--navy-soft);
+}
+
+
+.about__trait strong,
+.about__trait-word {
+  color: var(--ocean);
+
+  font-size: 1.04em;
+  font-weight: 700;
+}
+
+
+
+/* =========================================================
+   ABOUT — CHARACTERS
+   ========================================================= */
+
+.about__characters {
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: clamp(18px, 3vw, 32px);
+
+  width: 100%;
+  max-width: 500px;
+
+  justify-self: center;
+}
+
+
+.about__character-card {
+  margin: 0;
+
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+}
+
+
+.about__character-frame {
+  width: 100%;
+  height: 250px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid var(--border-soft);
+  border-radius: 12px;
+}
+
+
+.about__character {
+  display: block;
+
+  width: auto;
+  height: 180px;
+
+  max-width: 82%;
+
+  margin: 0;
+
+  object-fit: contain;
+
+  image-rendering: pixelated;
+}
+
+
+.about__character-card figcaption {
+  margin-top: 10px;
+
+  font-size: 11px;
+  font-weight: 700;
+
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+
+  color: var(--navy-soft);
+}
+
+
+
+/* =========================================================
+   ABOUT — PHILOSOPHY
+   ========================================================= */
+
+.about__philosophy {
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, 0.85fr)
+    minmax(0, 1.15fr);
+
+  gap: clamp(40px, 7vw, 90px);
+
+  align-items: center;
+
+  padding-block: clamp(38px, 5vw, 56px);
+
+  border-top: 1px solid var(--border-soft);
+}
+
 
 .about__emphasis {
   position: relative;
+
   width: fit-content;
-  max-width: 100%;
-  margin-block: 12px;
-  font-size: clamp(20px, 2.4vw, 25px);
-  font-weight: 500;
+  max-width: 24ch;
+
+  margin: 0;
+
+  font-size: clamp(24px, 2.6vw, 34px);
+  line-height: 1.25;
+
+  letter-spacing: -0.015em;
+
   color: var(--navy);
 }
 
+
 .about__emphasis::after {
   content: '';
+
   position: absolute;
+
   left: 0;
   right: 0;
-  bottom: -6px;
+  bottom: -8px;
+
   height: 2px;
+
   background: var(--ocean-bright);
+
   transform: scaleX(0);
   transform-origin: left;
-  transition: transform 1.1s cubic-bezier(0.22, 1, 0.36, 1);
+
+  transition:
+    transform 1.1s cubic-bezier(0.22, 1, 0.36, 1);
 }
+
 
 .about__emphasis.is-visible::after {
   transform: scaleX(1);
 }
 
+
+.about__philosophy-sub {
+  margin-top: 18px;
+
+  font-size: 16px;
+
+  color: var(--gray);
+}
+
+
 .about__closing {
-  margin-top: 8px;
-  font-size: clamp(20px, 2.4vw, 26px);
+  max-width: 30ch;
+
+  margin: 0;
+
+  font-size: clamp(19px, 2vw, 25px);
+  line-height: 1.55;
+
   color: var(--navy);
+
   font-weight: 500;
-  line-height: 1.4;
+}
+
+
+
+/* =========================================================
+   ABOUT — SOCIALS
+   ========================================================= */
+
+.about__socials {
+  display: flex;
+
+  justify-content: flex-end;
+  align-items: center;
+
+  gap: 18px;
+
+  padding-top: 24px;
+
+  border-top: 1px solid var(--border-soft);
+}
+
+
+.about__social-link {
+  width: 26px;
+  height: 26px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  color: var(--navy-soft);
+
+  transition:
+    color 0.25s ease,
+    transform 0.25s ease;
+}
+
+
+.about__social-link:hover,
+.about__social-link:focus-visible {
+  color: var(--ocean);
+
+  transform: translateY(-2px);
+}
+
+
+.about__social-link svg {
+  width: 21px;
+  height: 21px;
+
+  fill: none;
+
+  stroke: currentColor;
+  stroke-width: 1.7;
+
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+
+.about__social-link:last-child svg {
+  fill: currentColor;
+
+  stroke: none;
+}
+
+
+.about__social-link .social-dot {
+  fill: currentColor;
+
+  stroke: none;
+}
+
+
+
+/* =========================================================
+   WHIRL DOT
+   ========================================================= */
+
+.about__whirl-dot {
+  display: inline-block;
+
+  width: 5px;
+  height: 5px;
+
+  margin-left: 6px;
+
+  border-radius: 50%;
+
+  background: var(--coral);
+
+  animation: whirl 3.4s linear infinite;
+}
+
+
+@keyframes whirl {
+  from {
+    transform:
+      rotate(0deg)
+      translateX(4px)
+      rotate(0deg);
+  }
+
+  to {
+    transform:
+      rotate(360deg)
+      translateX(4px)
+      rotate(-360deg);
+  }
+}
+
+
+
+/* =========================================================
+   LOGGING / ABOUT — TABLET
+   ========================================================= */
+
+@media (max-width: 899px) {
+
+  .logging__entry {
+    grid-template-columns:
+      130px
+      minmax(0, 1fr)
+      auto;
+
+    gap: 24px;
+  }
+
+
+  .about__main {
+    grid-template-columns: 1fr;
+
+    gap: 38px;
+  }
+
+
+  .about__copy {
+    max-width: 620px;
+  }
+
+
+  .about__characters {
+    max-width: 460px;
+
+    justify-self: start;
+  }
+
+
+  .about__philosophy {
+    grid-template-columns: 1fr;
+
+    gap: 28px;
+  }
+
+
+  .about__closing {
+    max-width: 32ch;
+  }
+
+}
+
+
+
+/* =========================================================
+   LOGGING / ABOUT — MOBILE
+   ========================================================= */
+
+@media (max-width: 640px) {
+
+  /* Logging */
+
+  .logging {
+    padding-top: 52px;
+    padding-bottom: 64px;
+  }
+
+
+  .logging__entry {
+    position: relative;
+
+    grid-template-columns: 1fr;
+
+    gap: 10px;
+
+    min-height: auto;
+
+    padding-block: 22px;
+    padding-right: 30px;
+  }
+
+
+  .logging__meta {
+    flex-direction: row;
+    align-items: center;
+
+    gap: 12px;
+  }
+
+
+  .logging__arrow {
+    position: absolute;
+
+    right: 0;
+    top: 50%;
+
+    transform: translateY(-50%);
+  }
+
+
+  .logging__entry:hover .logging__arrow {
+    transform:
+      translateY(-50%)
+      translateX(3px);
+  }
+
+
+  /* About */
+
+  .about {
+    padding-top: 56px;
+    padding-bottom: 48px;
+  }
+
+
+  .about__header {
+    margin-bottom: 30px;
+  }
+
+
+  .about__main {
+    gap: 36px;
+
+    padding-bottom: 56px;
+  }
+
+
+  .about__greeting {
+    font-size: 29px;
+  }
+
+
+  .about__traits {
+    margin-top: 28px;
+
+    gap: 14px;
+  }
+
+
+  .about__trait {
+    font-size: 15px;
+  }
+
+
+  .about__characters {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+
+    gap: 10px;
+
+    width: 100%;
+    max-width: none;
+  }
+
+
+  .about__character-frame {
+    height: 190px;
+
+    border-radius: 10px;
+  }
+
+
+  .about__character {
+    height: 138px;
+
+    max-width: 80%;
+  }
+
+
+  .about__character-card figcaption {
+    margin-top: 8px;
+
+    font-size: 10px;
+  }
+
+
+  .about__philosophy {
+    grid-template-columns: 1fr;
+
+    gap: 22px;
+
+    padding-block: 42px;
+  }
+
+
+  .about__emphasis {
+    max-width: none;
+
+    font-size: 27px;
+  }
+
+
+  .about__philosophy-sub {
+    margin-top: 16px;
+
+    font-size: 16px;
+  }
+
+
+  .about__closing {
+    max-width: none;
+
+    font-size: 20px;
+  }
+
+
+  .about__socials {
+    justify-content: flex-start;
+
+    gap: 16px;
+
+    padding-top: 20px;
+  }
+
 }
 
 /* ---------- footer ---------- */

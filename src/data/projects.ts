@@ -87,17 +87,97 @@ export interface Project {
 
 export const projects: Project[] = [
   {
-    id: 'd2c-journey-explorer',
-    waveNumber: 'WAVE 001',
-    slug: 'd2c-journey-explorer',
-    title: 'D2C Journey Explorer',
-    shortDescription:
-      'An interactive customer journey experience exploring how digital commerce teams shape the shopping experience.',
-    status: 'green-wave',
-    tags: ['Interactive', 'AI', 'Prototype'],
-    year: 2026,
-    featured: true,
-  },
+  id: 'd2c-journey-explorer',
+  waveNumber: 'WAVE 001',
+  slug: 'd2c-journey-explorer',
+  title: 'D2C Journey Explorer',
+
+  shortDescription:
+    "Every purchase has a journey. Follow three customers across three markets and discover what's working behind each moment.",
+
+  status: 'riding',
+
+  tags: [
+    'D2C',
+    'Interactive',
+    'AI',
+    'Vibe Coding',
+  ],
+
+  year: 2026,
+  featured: true,
+
+  visualType: 'artwork',
+visualSrc: '/images/D2C-journey-key-visual.png',
+visualAlt:
+  'Pixel-art key visual for D2C Journey Explorer, following three customers through different digital commerce journeys.',
+
+  externalUrl:
+    'https://sunjin-sunny.github.io/d2c-journey-explorer/',
+
+  githubUrl:
+    'https://github.com/sunjin-sunny/d2c-journey-explorer',
+
+  overview:
+    'A global D2C customer journey turned into an interactive experience. Choose a customer, follow their purchase journey, and tap each glowing pointer to discover the product, UX, engineering, marketing, and commercial capabilities working behind the screen.',
+
+  takeOff:
+    "It started with a simple question: how do you explain a complex D2C ecosystem without showing people another org chart? I replaced the organization chart with three fictional customers — Alex, Matthew, and Vanessa — each navigating a different market, product category, and purchase context.",
+
+  theRide:
+    'Alex shops for a Galaxy device in the United States. Matthew uses an AI Shopping Assistant to choose a TV in the United Kingdom. Vanessa buys an air conditioner in Mexico. Across their journeys, each customer moment becomes a window into the decisions, systems, and cross-functional work behind a digital commerce experience.',
+
+  topTurns: [
+    {
+      title: 'Turned an org chart into a customer journey',
+      note:
+        'Instead of explaining teams directly, the experience reveals capabilities only when they become relevant to a customer moment.',
+    },
+    {
+      title: 'Built persona-driven storytelling',
+      note:
+        'Three pixel-art customers give each market and product category a distinct context while keeping the interaction lightweight and playful.',
+    },
+    {
+      title: 'Added interactive journey annotations',
+      note:
+        'One glowing pointer per key screen exposes the product, UX, technology, marketing, or commercial capability behind what the customer sees.',
+    },
+    {
+      title: 'Added English / Korean localization',
+      note:
+        'The interface, journey annotations, ending, and project story can switch between English and Korean without duplicating the underlying journey structure.',
+    },
+    {
+      title: 'Shipped a responsive live experience',
+      note:
+        'The prototype was refined across desktop and mobile, then deployed publicly through GitHub Pages.',
+    },
+  ],
+
+  wipeouts: [
+    'The first version tried to explain too much. More screens and more organizational detail made the experience harder — not easier — to understand.',
+    'A few seemingly small UI changes broke card rendering, overlays, and responsive behavior. Repeated browser QA became part of the build process.',
+    'Mobile overlays exposed z-index and fixed-position conflicts that were almost invisible on desktop.',
+    'Some generated persona assets looked transparent but actually contained baked-in backgrounds, which had to be cleaned up before use.',
+  ],
+
+  lessons: [
+    'AI dramatically lowered the barrier to building, but product judgment still determined what to show, what to remove, and what the user should understand next.',
+    'One customer moment paired with one clear insight was stronger than trying to explain every team and capability at once.',
+    'A working prototype creates much better product conversations than a static explanation of the same concept.',
+    'Vibe coding works best when the PM can continuously test, critique, simplify, and redirect the implementation rather than treating generated code as finished output.',
+  ],
+
+  techStack: [
+    'HTML',
+    'CSS',
+    'JavaScript',
+    'Generative AI',
+    'Vibe Coding',
+    'GitHub Pages',
+  ],
+},
   {
     id: 'the-lineup',
     waveNumber: 'WAVE 002',
