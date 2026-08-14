@@ -1422,6 +1422,260 @@
 
 /* ---------- logging (lab notes) ---------- */
 /* =========================================================
+   LOGGING
+   ========================================================= */
+
+.logging {
+  padding-top: clamp(64px, 8vw, 100px);
+  padding-bottom: clamp(72px, 9vw, 112px);
+
+  border-top: 1px solid var(--border-soft);
+}
+
+.logging .container {
+  width: min(100% - 48px, 1280px);
+  margin-inline: auto;
+}
+
+.logging::before {
+  content: '';
+  display: block;
+
+  width: 32px;
+  height: 3px;
+
+  margin-bottom: 20px;
+
+  background: var(--ocean-bright);
+}
+
+.logging .section-heading {
+  margin: 0;
+
+  font-size: 15px;
+  font-weight: 700;
+
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+
+  color: var(--ocean);
+}
+
+.logging .section-heading::after {
+  content: 'Small notes from the lab.';
+
+  display: block;
+
+  margin-top: 12px;
+
+  font-size: 14px;
+  font-weight: 400;
+  font-style: italic;
+
+  letter-spacing: 0;
+  text-transform: none;
+
+  color: var(--gray);
+}
+
+.logging__list {
+  list-style: none;
+
+  margin: 42px 0 0;
+  padding: 0;
+
+  border-top: 1px solid var(--border-soft);
+}
+
+.logging__entry {
+  display: grid;
+
+  grid-template-columns:
+    minmax(170px, 0.75fr)
+    minmax(0, 2.4fr)
+    32px;
+
+  align-items: center;
+
+  gap: clamp(28px, 5vw, 72px);
+
+  min-height: 112px;
+
+  margin: 0;
+  padding: 24px 0;
+
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.logging__meta {
+  display: flex;
+  flex-direction: column;
+
+  gap: 7px;
+}
+
+.logging__id {
+  font-size: 12px;
+  font-weight: 700;
+
+  letter-spacing: 0.08em;
+
+  color: var(--ocean);
+}
+
+.logging__date {
+  font-size: 12px;
+
+  color: var(--gray-light);
+}
+
+.logging__text {
+  margin: 0;
+
+  font-size: clamp(18px, 1.8vw, 23px);
+  line-height: 1.35;
+
+  color: var(--navy);
+}
+
+.logging__description {
+  margin: 7px 0 0;
+
+  font-size: 14px;
+  line-height: 1.55;
+
+  color: var(--gray);
+}
+
+.logging__link {
+  display: inline-block;
+
+  margin-top: 9px;
+
+  font-size: 13px;
+  font-weight: 600;
+
+  color: var(--ocean);
+
+  text-decoration: none;
+}
+
+.logging__link:hover {
+  text-decoration: underline;
+}
+
+.logging__entry--next .logging__id,
+.logging__entry--next .logging__date {
+  color: var(--coral);
+}
+
+.logging__entry--next .logging__text {
+  font-style: italic;
+
+  color: var(--navy-soft);
+}
+
+
+/* Arrow at far right */
+
+.logging__entry::after {
+  content: '→';
+
+  justify-self: end;
+
+  font-size: 23px;
+
+  color: var(--gray-light);
+
+  transition:
+    transform 180ms ease,
+    color 180ms ease;
+}
+
+.logging__entry:hover::after {
+  transform: translateX(4px);
+
+  color: var(--ocean);
+}
+
+
+/* =========================================================
+   LOGGING — TABLET
+   ========================================================= */
+
+@media (max-width: 899px) {
+
+  .logging__entry {
+    grid-template-columns:
+      130px
+      minmax(0, 1fr)
+      28px;
+
+    gap: 24px;
+  }
+
+}
+
+
+/* =========================================================
+   LOGGING — MOBILE
+   ========================================================= */
+
+@media (max-width: 640px) {
+
+  .logging {
+    padding-top: 52px;
+    padding-bottom: 64px;
+  }
+
+  .logging .container {
+    width: min(100% - 36px, 1280px);
+  }
+
+  .logging__list {
+    margin-top: 32px;
+  }
+
+  .logging__entry {
+    position: relative;
+
+    display: block;
+
+    min-height: auto;
+
+    padding: 22px 32px 22px 0;
+  }
+
+  .logging__meta {
+    flex-direction: row;
+    align-items: center;
+
+    gap: 12px;
+
+    margin-bottom: 10px;
+  }
+
+  .logging__text {
+    font-size: 18px;
+  }
+
+  .logging__entry::after {
+    position: absolute;
+
+    right: 0;
+    top: 50%;
+
+    transform: translateY(-50%);
+  }
+
+  .logging__entry:hover::after {
+    transform:
+      translateY(-50%)
+      translateX(3px);
+  }
+
+}
+/* =========================================================
    ABOUT
    ========================================================= */
 

@@ -82,7 +82,7 @@ function About() {
               <div className="about__character-frame">
                 <img
                   className="about__character"
-                  src="/images/sunny-pm.png"
+                  src={`${import.meta.env.BASE_URL}images/sunny-pm.png`}
                   alt="Pixel-art Sunny as a Product Manager holding a laptop"
                   loading="lazy"
                 />
@@ -94,7 +94,7 @@ function About() {
               <div className="about__character-frame">
                 <img
                   className="about__character"
-                  src="/images/sunny-surf.png"
+                  src={`${import.meta.env.BASE_URL}images/sunny-surf.png`}
                   alt="Pixel-art Sunny holding a surfboard"
                   loading="lazy"
                 />

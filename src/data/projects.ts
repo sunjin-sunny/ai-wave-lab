@@ -1,6 +1,7 @@
 // All project content lives here instead of inside the homepage component.
 // To add a new project, add a new object to the `projects` array below —
 // nothing in the homepage or routing needs to change.
+const BASE = import.meta.env.BASE_URL
 
 export type ProjectStatus =
   | 'white-wash'
@@ -108,7 +109,7 @@ export const projects: Project[] = [
   featured: true,
 
   visualType: 'artwork',
-visualSrc: '/images/D2C-journey-key-visual.png',
+visualSrc: `${BASE}images/D2C-journey-key-visual.png`,
 visualAlt:
   'Pixel-art key visual for D2C Journey Explorer, following three customers through different digital commerce journeys.',
 
@@ -190,7 +191,7 @@ visualAlt:
     year: 2026,
     featured: true,
     visualType: 'pixel-art',
-    visualSrc: '/images/the-lineup-key-visual.png',
+    visualSrc: `${BASE}images/the-lineup-key-visual.png`,
     visualAlt:
       'Pixel-art key artwork for The Lineup surfing game: surfers paddling out, waiting their turn, and taking off on a wave, with numbered callouts for the paddle-out, wait-your-turn, take-off, and priority-check gameplay steps.',
   },
