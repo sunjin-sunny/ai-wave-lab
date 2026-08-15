@@ -9,6 +9,7 @@ import About from './components/About'
 import Footer from './components/Footer'
 import ProjectDetail from './components/ProjectDetail'
 import WavesArchive from './components/WavesArchive'
+import LineupGame from './components/LineupGame'
 import { usePathname } from './lib/router'
 
 // Future easter-egg hook (not implemented yet): a quiet trigger — a key
@@ -17,11 +18,13 @@ import { usePathname } from './lib/router'
 // addition should stay transform/CSS-driven and respect prefers-reduced-motion,
 // same as the rest of the site's motion.
 
-// Only one dynamic route exists so far: a project's slug after /projects/.
+// A project's slug after /projects/, and its playable page at /play.
 const PROJECT_ROUTE = /^\/projects\/([^/]+)\/?$/
+const GAME_ROUTE = /^\/projects\/([^/]+)\/play\/?$/
 
 function App() {
   const pathname = usePathname()
+  const gameSlug = pathname.match(GAME_ROUTE)?.[1]
   const projectSlug = pathname.match(PROJECT_ROUTE)?.[1]
   const isWavesArchive = pathname === '/projects' || pathname === '/projects/'
 
@@ -33,7 +36,9 @@ function App() {
     <>
       <Nav />
       <main>
-        {projectSlug ? (
+        {gameSlug ? (
+          <LineupGame slug={gameSlug} />
+        ) : projectSlug ? (
           <ProjectDetail slug={projectSlug} />
         ) : isWavesArchive ? (
           <WavesArchive />

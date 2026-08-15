@@ -2363,3 +2363,631 @@
     align-items: flex-start;
   }
 }
+
+/* =========================================================
+   THE LINEUP — GAME SHELL (TOP TURN 01) + PRE-GAME SETUP (TOP TURN 02)
+   + REAL PORTRAIT ASSETS (TOP TURN 02.5) + GAMEPLAY STAGE (TOP TURN 03)
+   + INCOMING WAVE (TOP TURN 04) + REAL OCEAN/WAVE ASSETS (TOP TURN 04.5)
+   + SCALE TUNING (TOP TURN 04.6) + INPUT/TAKEOFF JUDGMENT (TOP TURN 05)
+   Isolated from the project-detail case-study layout above —
+   scoped entirely under .lineup-game so nothing here can leak
+   into or be affected by other pages.
+   ========================================================= */
+
+.lineup-game {
+  padding-top: clamp(40px, 6vw, 72px);
+  padding-bottom: clamp(72px, 9vw, 120px);
+}
+
+.lineup-game__inner {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.lineup-game .project-detail__back {
+  margin-bottom: 28px;
+}
+
+.lineup-game .project-row__number {
+  margin-bottom: 8px;
+}
+
+.lineup-game__title {
+  font-size: clamp(42px, 5.4vw, 70px);
+  line-height: 0.98;
+  letter-spacing: -0.035em;
+  color: var(--navy);
+}
+
+.lineup-game__label {
+  margin-top: 16px;
+  font-size: clamp(17px, 1.7vw, 20px);
+  color: var(--navy-soft);
+}
+
+.lineup-game__start {
+  margin-top: clamp(28px, 4vw, 40px);
+}
+
+.lineup-game__start:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+  transform: none;
+}
+
+/* ---------- character select ---------- */
+
+.lineup-character-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(12px, 2vw, 20px);
+
+  width: 100%;
+  margin-top: clamp(28px, 4vw, 40px);
+}
+
+/* Each card shows a real standalone portrait (data/lineupCharacters.ts,
+   public/images/lineup/portraits/) — object-fit: contain on the <img>
+   below keeps every character fully visible and undistorted regardless
+   of that character's own source PNG dimensions. */
+.lineup-character-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  aspect-ratio: 1 / 1;
+  width: 100%;
+  padding: 14px;
+
+  border: 1px solid var(--ocean);
+  border-radius: 12px;
+  overflow: hidden;
+
+  background-color: var(--sand-deep);
+
+  cursor: pointer;
+  transform: scale(0.98);
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.lineup-character-card__portrait {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+.lineup-character-card:hover,
+.lineup-character-card:focus-visible {
+  transform: scale(1);
+  border-color: var(--ocean-bright);
+}
+
+.lineup-character-card--selected {
+  transform: scale(1);
+  border-color: var(--ocean-bright);
+  box-shadow: 0 0 0 3px var(--ocean-pale);
+}
+
+.lineup-character-card__label {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+
+  padding: 6px 8px;
+
+  background: rgba(22, 40, 63, 0.85);
+
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--sand);
+  text-align: center;
+}
+
+.lineup-character-card__check {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 22px;
+  height: 22px;
+
+  border-radius: 50%;
+  background: var(--ocean-bright);
+
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--sand);
+}
+
+/* ---------- nickname ---------- */
+
+.lineup-nickname {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  width: 100%;
+  max-width: 320px;
+  margin-top: clamp(24px, 3vw, 32px);
+}
+
+.lineup-nickname__label {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--navy-soft);
+}
+
+.lineup-nickname__input {
+  width: 100%;
+  min-height: 46px;
+  padding: 10px 14px;
+
+  border: 1px solid var(--ocean);
+  border-radius: 6px;
+  background: var(--sand);
+
+  font: inherit;
+  font-size: 16px;
+  color: var(--navy);
+
+  transition: border-color 0.3s ease;
+}
+
+.lineup-nickname__input::placeholder {
+  color: var(--gray-light);
+}
+
+.lineup-nickname__input:focus-visible {
+  outline: none;
+  border-color: var(--ocean-bright);
+}
+
+/* ---------- temporary ready state ---------- */
+
+.lineup-ready {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+
+  width: 100%;
+  max-width: 360px;
+  margin-top: clamp(28px, 4vw, 40px);
+}
+
+.lineup-ready__portrait {
+  display: block;
+  width: clamp(140px, 22vw, 200px);
+  aspect-ratio: 1 / 1;
+  padding: 12px;
+
+  border: 1px solid var(--ocean);
+  border-radius: 12px;
+
+  background-color: var(--sand-deep);
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+.lineup-ready__character {
+  margin-top: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--gray-light);
+}
+
+.lineup-ready__nickname {
+  margin-top: 4px;
+  font-size: clamp(28px, 4vw, 38px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--navy);
+}
+
+.lineup-ready__headline {
+  margin-top: 16px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ocean);
+}
+
+.lineup-ready__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 20px;
+
+  margin-top: 24px;
+}
+
+.lineup-ready__actions .lineup-game__start {
+  margin-top: 0;
+}
+
+/* ---------- gameplay stage (TOP TURN 03) ---------- */
+
+.lineup-playing {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+
+  width: 100%;
+  margin-top: clamp(24px, 4vw, 32px);
+}
+
+.lineup-dev-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 20px;
+
+  margin-bottom: 20px;
+}
+
+.lineup-wave-hint {
+  margin-top: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ocean);
+}
+
+.lineup-hud {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px 16px;
+
+  padding: 10px 16px;
+
+  border: 1px solid var(--ocean);
+  border-radius: 8px;
+  background: var(--sand-deep);
+
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--navy-soft);
+}
+
+.lineup-hud__item--nickname {
+  color: var(--ocean);
+}
+
+.lineup-stage {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  margin-top: 16px;
+
+  border: 1px solid var(--ocean);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.lineup-stage__sky {
+  flex: 0 0 26%;
+  background: var(--sand-deep);
+  border-bottom: 2px solid var(--ocean-bright);
+}
+
+/* Real pixel-art water (TOP TURN 04.5) — cover rather than repeat/tile,
+   since ocean-lineup.png isn't a proven seamless tile and forcing
+   background-repeat would risk a visible seam. Cover scales
+   proportionally (no stretch/skew), just crops any excess. */
+.lineup-stage__ocean {
+  position: relative;
+  flex: 1;
+
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+  image-rendering: pixelated;
+}
+
+/* Incoming wave (TOP TURN 04.5, scale-tuned in 04.6) — the real
+   wave-peeling-right.png / wave-dump.png assets. Two elements on
+   purpose: the wrapper owns the approach animation — both position
+   (`top`) and depth (`transform: translateX(-50%) scale(...)`, always
+   paired so centering is never lost); the inner <img> owns the
+   LEFT-vs-RIGHT mirror (`transform: scaleX(-1)`, static, on a *different*
+   element). Same asset for LEFT and RIGHT — LEFT is just RIGHT mirrored
+   in CSS, no separate file. Starts smaller/farther, grows toward the
+   player (depth cue) then fades at its largest before reaching the
+   player, so it never fully covers the sprite; key-driven remounts (see
+   LineupGame.tsx) restart the loop on every new wave. */
+.lineup-wave-wrap {
+  position: absolute;
+  left: 50%;
+  top: -22%;
+  width: 54%;
+
+  animation: lineup-wave-approach 3.2s linear infinite;
+}
+
+.lineup-wave-img {
+  display: block;
+  width: 100%;
+  height: auto;
+  image-rendering: pixelated;
+}
+
+.lineup-wave-img--mirrored {
+  transform: scaleX(-1);
+}
+
+/* scale 0.85 -> 1.45 (base width 54%) means the wave grows from ~46% to
+   ~78% of stage width as it approaches — a ~45% larger perceived size
+   at its closest point than the flat, non-scaling 04.5 version. */
+@keyframes lineup-wave-approach {
+  0% {
+    top: -22%;
+    transform: translateX(-50%) scale(0.85);
+    opacity: 0.9;
+  }
+  80% {
+    top: 18%;
+    transform: translateX(-50%) scale(1.45);
+    opacity: 1;
+  }
+  100% {
+    top: 18%;
+    transform: translateX(-50%) scale(1.45);
+    opacity: 0;
+  }
+}
+
+.lineup-stage__player {
+  position: absolute;
+  left: 50%;
+  bottom: 30%;
+  transform: translateX(-50%);
+
+  width: clamp(108px, 20vw, 190px);
+  aspect-ratio: 1 / 1;
+}
+
+@keyframes lineup-idle-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+.lineup-stage__sprite {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  image-rendering: pixelated;
+  animation: lineup-idle-bob 3.2s ease-in-out infinite;
+}
+
+.lineup-controls {
+  display: flex;
+  gap: 10px;
+
+  width: 100%;
+  margin-top: 16px;
+}
+
+.lineup-controls__button {
+  flex: 1;
+
+  min-height: 48px;
+  padding: 10px;
+
+  border: 1px solid var(--ocean);
+  border-radius: 6px;
+  background: transparent;
+
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ocean);
+
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease,
+    border-color 0.2s ease, opacity 0.2s ease;
+}
+
+.lineup-controls__button:hover:not(:disabled),
+.lineup-controls__button:focus-visible:not(:disabled) {
+  transform: translateY(-2px);
+  border-color: var(--ocean-bright);
+}
+
+.lineup-controls__button--stop {
+  background: var(--ocean);
+  color: var(--sand);
+}
+
+.lineup-controls__button--stop:hover:not(:disabled),
+.lineup-controls__button--stop:focus-visible:not(:disabled) {
+  background: var(--ocean-bright);
+  border-color: var(--ocean-bright);
+}
+
+/* Between waves (result display, or before/after `playing`) all three
+   buttons are inert — only one action is ever accepted per wave. */
+.lineup-controls__button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+  transform: none;
+}
+
+/* ---------- in-stage feedback (TOP TURN 05) ---------- */
+
+.lineup-stage__feedback {
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+
+  padding: 8px 18px;
+  border-radius: 999px;
+
+  background: var(--navy);
+  color: var(--sand);
+
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+
+  box-shadow: 0 4px 14px rgba(22, 40, 63, 0.28);
+}
+
+.lineup-stage__feedback--success {
+  background: var(--ocean-bright);
+}
+
+.lineup-stage__feedback--danger {
+  background: var(--coral);
+}
+
+/* ---------- run-end / wipeout screen (TOP TURN 05) ---------- */
+
+.lineup-wipeout {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+
+  width: 100%;
+  max-width: 360px;
+  margin-top: clamp(28px, 4vw, 40px);
+}
+
+.lineup-wipeout__portrait {
+  display: block;
+  width: clamp(140px, 22vw, 200px);
+  aspect-ratio: 1 / 1;
+  padding: 12px;
+
+  border: 1px solid var(--coral);
+  border-radius: 12px;
+
+  background-color: var(--sand-deep);
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+.lineup-wipeout__headline {
+  margin-top: 20px;
+  font-size: clamp(32px, 4.5vw, 44px);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--coral);
+}
+
+.lineup-wipeout__character {
+  margin-top: 16px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--gray-light);
+}
+
+.lineup-wipeout__nickname {
+  margin-top: 4px;
+  font-size: clamp(24px, 3vw, 30px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--navy);
+}
+
+.lineup-wipeout__rides {
+  margin-top: 12px;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--navy-soft);
+}
+
+.lineup-wipeout__reason {
+  margin-top: 4px;
+  font-size: 13px;
+  color: var(--gray);
+}
+
+.lineup-wipeout__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 20px;
+
+  margin-top: 24px;
+}
+
+.lineup-wipeout__actions .lineup-game__start {
+  margin-top: 0;
+}
+
+@media (max-width: 640px) {
+  .lineup-game__inner {
+    align-items: stretch;
+  }
+
+  .lineup-game__start {
+    width: 100%;
+  }
+
+  .lineup-character-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .lineup-nickname {
+    max-width: none;
+  }
+
+  .lineup-ready {
+    max-width: none;
+    align-items: stretch;
+  }
+
+  .lineup-ready__actions .lineup-game__start {
+    width: 100%;
+  }
+
+  .lineup-stage {
+    aspect-ratio: 4 / 5;
+  }
+
+  .lineup-wipeout {
+    max-width: none;
+    align-items: stretch;
+  }
+
+  .lineup-wipeout__actions .lineup-game__start {
+    width: 100%;
+  }
+}

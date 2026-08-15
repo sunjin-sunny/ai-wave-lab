@@ -65,6 +65,8 @@ export interface Project {
   featured: boolean
   externalUrl?: string
   githubUrl?: string
+  /** Whether this project has a playable page at /projects/:slug/play. */
+  playable?: boolean
 
   // The project's visual identity, used both as the small Selected Waves
   // carousel card image AND the large project-detail hero visual. All
@@ -190,6 +192,7 @@ visualAlt:
     tags: ['Game', 'Surf', 'Learning'],
     year: 2026,
     featured: true,
+    playable: true,
     visualType: 'pixel-art',
     visualSrc: `${BASE}images/the-lineup-key-visual.png`,
     visualAlt:

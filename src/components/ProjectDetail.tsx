@@ -90,8 +90,18 @@ function ProjectDetail({ slug }: { slug: string }) {
                 ))}
               </ul>
 
-              {(project.externalUrl || project.githubUrl) && (
+              {(project.externalUrl || project.githubUrl || project.playable) && (
                 <div className="project-hero__actions">
+
+                  {project.playable && (
+                    <Link
+                      href={`/projects/${project.slug}/play`}
+                      className="project-cta project-cta--primary"
+                    >
+                      <span>▶</span>
+                      Play {project.title}
+                    </Link>
+                  )}
 
                   {project.externalUrl && (
                     <a
