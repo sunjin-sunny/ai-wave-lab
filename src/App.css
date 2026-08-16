@@ -2380,6 +2380,7 @@
    + STAGE ROLLBACK + IN-STAGE HUD/TUTORIAL/CONTROLS (TOP TURN 08.3)
    + MOBILE WAVE ENDPOINT FIX + PADDLEOUT SPRITE (TOP TURN 08.4)
    + SURFER NAMES + POSE GUIDE (TOP TURN 09)
+   + GAME AUDIO (TOP TURN 10)
    Isolated from the project-detail case-study layout above —
    scoped entirely under .lineup-game so nothing here can leak
    into or be affected by other pages.
@@ -2873,6 +2874,42 @@
 .lineup-stage__hud-item--nickname,
 .lineup-stage__hud-item--wave-read {
   color: var(--ocean);
+}
+
+/* TOP TURN 10, Part F: one compact arcade-HUD utility button, living
+   inside .lineup-stage__hud itself (the flex row already has WAVE/RIDES/
+   nickname/WAVE READ, and this is just one more small item — not a
+   separate panel). margin-left: auto pushes it to the row's far end so
+   it reads as a utility control, distinct from the status text next to
+   it, without needing its own background/border chip. */
+.lineup-stage__sound-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: auto;
+
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+
+  font-size: 13px;
+  line-height: 1;
+  color: inherit;
+
+  cursor: pointer;
+}
+
+.lineup-stage__sound-toggle:hover,
+.lineup-stage__sound-toggle:focus-visible {
+  background: rgba(11, 122, 115, 0.14);
+}
+
+.lineup-stage__sound-toggle:focus-visible {
+  outline: 2px solid var(--ocean);
+  outline-offset: 1px;
 }
 
 /* TOP TURN 08.3, Part C: same short-title + one-instruction shape as the

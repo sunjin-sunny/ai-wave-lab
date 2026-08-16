@@ -16,6 +16,33 @@ const OCEAN_SRC = `${WAVES_DIR}/ocean-lineup.png`
 const WAVE_PEELING_RIGHT_SRC = `${WAVES_DIR}/wave-peeling-right.png`
 const WAVE_DUMP_SRC = `${WAVES_DIR}/wave-dump.png`
 
+// TOP TURN 10: same BASE_URL-prefixed path strategy as the art above, so
+// audio resolves correctly under the GitHub Pages /ai-wave-lab/ base, not
+// just on localhost.
+const AUDIO_DIR = `${BASE}audio/lineup`
+const OCEAN_LOOP_SRC = `${AUDIO_DIR}/ocean-loop.mp3`
+const CLEAN_RIDE_SFX_SRC = `${AUDIO_DIR}/clean-ride.mp3`
+const WIPEOUT_SFX_SRC = `${AUDIO_DIR}/wipeout.mp3`
+// Subtle atmosphere, not a competing layer under feedback/SFX — picked
+// from the middle of the requested 0.20-0.30 range.
+const OCEAN_AMBIENCE_VOLUME = 0.25
+const SOUND_ENABLED_STORAGE_KEY = 'lineupSoundEnabled'
+
+function readSoundEnabled(): boolean {
+  try {
+    const stored = window.localStorage.getItem(SOUND_ENABLED_STORAGE_KEY)
+    // No stored preference yet — default enabled (TOP TURN 10, Part H).
+    // This only decides whether audio *would* play; it never triggers
+    // playback itself, since that still waits for a real user gesture
+    // (see the phase-reactive effect below).
+    return stored === null ? true : stored === 'true'
+  } catch {
+    // Storage can throw (private browsing, disabled storage) — default
+    // enabled rather than crashing the page over a convenience feature.
+    return true
+  }
+}
+
 type Phase = 'setup' | 'ready' | 'playing' | 'wipeout'
 
 // Only three wave scenarios exist so far, and nothing beyond this file
@@ -349,6 +376,12 @@ function LineupGame({ slug }: { slug: string }) {
   // overlay the player dismisses with Continue, so it's a single boolean
   // rather than another TUTORIAL_WAVES-style entry.
   const [showPoseGuide, setShowPoseGuide] = useState(false)
+  // TOP TURN 10: lazy initializer, same pattern as tutorialCompleted —
+  // localStorage read once, on mount. Only controls whether the three
+  // Audio elements are muted; it never triggers playback itself (see the
+  // phase-reactive ocean-ambience effect for the actual "begin only
+  // after a user gesture" logic).
+  const [soundEnabled, setSoundEnabled] = useState(readSoundEnabled)
 
   // Refs, not state: `inputLockedRef` must block a second action
   // synchronously (a React state check can lose a race with a very fast
@@ -363,6 +396,14 @@ function LineupGame({ slug }: { slug: string }) {
   const gapTimerRef = useRef<number | null>(null)
   const paddleTimerRef = useRef<number | null>(null)
   const outroTimerRef = useRef<number | null>(null)
+  // TOP TURN 10: one HTMLAudioElement per sound, created once on mount
+  // (see the effect below) and reused for the component's whole
+  // lifetime — never recreated on render, never more than one instance
+  // each, so repeated plays/mute toggles can't accumulate duplicate
+  // overlapping playback.
+  const oceanAudioRef = useRef<HTMLAudioElement | null>(null)
+  const cleanRideAudioRef = useRef<HTMLAudioElement | null>(null)
+  const wipeoutAudioRef = useRef<HTMLAudioElement | null>(null)
 
   function clearResultTimer() {
     if (resultTimerRef.current !== null) {
@@ -682,6 +723,13 @@ function LineupGame({ slug }: { slug: string }) {
   }
 
   function wipeoutAfterResult(reason: string) {
+    // TOP TURN 10, Part E: this is the single call site for every
+    // dangerous-failure branch (WRONG WAY, CLOSEOUT, DROP-IN, COLLISION —
+    // see resolveAction), so hooking the SFX in here once covers all four
+    // without a parallel audio-only rule list. Fires during tutorial
+    // retries too, on purpose — the spec explicitly wants that ("the
+    // audio reinforces this was a dangerous call").
+    playWipeoutSfx()
     if (tutorialStep !== null) {
       scheduleTutorialStep(false)
     } else {
@@ -797,6 +845,12 @@ function LineupGame({ slug }: { slug: string }) {
     } else {
       setFeedback({ text: 'CLEAN TAKEOFF', tone: 'success' })
       setPlayerSprite('ride')
+      // TOP TURN 10, Part D: the one and only branch that produces an
+      // actual CLEAN TAKEOFF — GOOD CALL/PRIORITY RESPECTED/LINE CLEAR
+      // all route through advanceAfterResult too, but never land here, so
+      // this is the correct single call site rather than something
+      // hooked into advanceAfterResult generically.
+      playCleanRideSfx()
       // RIDES never counts during the tutorial (TOP TURN 08, section 3).
       if (tutorialStep === null) {
         setRides((r) => r + 1)
@@ -845,6 +899,125 @@ function LineupGame({ slug }: { slug: string }) {
     return () => window.removeEventListener('keydown', handleKeyDown)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase, waveState, waveDirection])
+
+  // TOP TURN 10: creates the three HTMLAudioElements exactly once, on
+  // mount — never inside a render or a per-event handler, so nothing can
+  // recreate them (Part I). `muted` starts from the current soundEnabled
+  // value (correct even though this closure never re-runs, since a
+  // mount-only effect always sees the state its own render computed);
+  // every later toggle is handled by the separate mute-sync effect below,
+  // not by re-running this one. Cleanup pauses and drops the references
+  // so nothing keeps decoding/playing after the component unmounts.
+  useEffect(() => {
+    const ocean = new Audio(OCEAN_LOOP_SRC)
+    ocean.loop = true
+    ocean.volume = OCEAN_AMBIENCE_VOLUME
+    ocean.muted = !soundEnabled
+    oceanAudioRef.current = ocean
+
+    const cleanRide = new Audio(CLEAN_RIDE_SFX_SRC)
+    cleanRide.muted = !soundEnabled
+    cleanRideAudioRef.current = cleanRide
+
+    const wipeoutSfx = new Audio(WIPEOUT_SFX_SRC)
+    wipeoutSfx.muted = !soundEnabled
+    wipeoutAudioRef.current = wipeoutSfx
+
+    return () => {
+      ocean.pause()
+      cleanRide.pause()
+      wipeoutSfx.pause()
+      oceanAudioRef.current = null
+      cleanRideAudioRef.current = null
+      wipeoutAudioRef.current = null
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // TOP TURN 10, Part G: keeps all three elements' `muted` in sync with
+  // the toggle — the *only* thing muting does. It never pauses/stops
+  // ocean ambience outright (so unmuting mid-wave just makes the
+  // already-running loop audible again, satisfying "resume cleanly... do
+  // NOT replay old effects") and never touches clean-ride/wipeout's
+  // playback position (there's nothing to resume — they're one-shots).
+  useEffect(() => {
+    const muted = !soundEnabled
+    if (oceanAudioRef.current) oceanAudioRef.current.muted = muted
+    if (cleanRideAudioRef.current) cleanRideAudioRef.current.muted = muted
+    if (wipeoutAudioRef.current) wipeoutAudioRef.current.muted = muted
+  }, [soundEnabled])
+
+  // TOP TURN 10, Part B: the single source of truth for ocean ambience
+  // start/stop — reacts to `phase` rather than being wired into every
+  // individual handler (Start Session, Start Tutorial, Try Again, Play
+  // Tutorial, Exit Session, Change Surfer all just change `phase`, and
+  // this responds uniformly, so nothing can be missed). Playing whenever
+  // phase is 'playing' (tutorial + normal gameplay + every in-between
+  // result/gap moment nested inside it) or 'wipeout' (Part B explicitly
+  // allows ambience to continue quietly on the results screen) means:
+  // - it only ever calls .play() as a direct reaction to a phase change
+  //   that itself only ever happens inside a user-click handler, never on
+  //   initial mount (phase starts at 'setup') — satisfying "begin only
+  //   after user interaction" without a separate autoplay/gesture flag.
+  // - the `ocean.paused` guard makes it idempotent: Try Again transitions
+  //   wipeout -> playing, both of which already keep ambience playing, so
+  //   this branch is skipped and the loop is never interrupted/restarted
+  //   — no duplicate overlapping instances (Part G).
+  useEffect(() => {
+    const ocean = oceanAudioRef.current
+    if (!ocean) return
+    if (phase === 'playing' || phase === 'wipeout') {
+      if (ocean.paused) {
+        const playResult = ocean.play()
+        if (playResult && typeof playResult.catch === 'function') {
+          playResult.catch(() => {
+            // Autoplay blocked, decode failure, etc. — audio is
+            // best-effort and must never affect gameplay (Part J).
+          })
+        }
+      }
+    } else {
+      ocean.pause()
+    }
+  }, [phase])
+
+  // TOP TURN 10, Part D/E: reused for both one-shot SFX — reset
+  // currentTime to 0 before every play() so the *same* single instance
+  // (never a new Audio()) restarts cleanly from the top instead of
+  // layering a second overlapping playback on top of one still running.
+  function playCleanRideSfx() {
+    const audio = cleanRideAudioRef.current
+    if (!audio) return
+    audio.currentTime = 0
+    const playResult = audio.play()
+    if (playResult && typeof playResult.catch === 'function') {
+      playResult.catch(() => {})
+    }
+  }
+
+  function playWipeoutSfx() {
+    const audio = wipeoutAudioRef.current
+    if (!audio) return
+    audio.currentTime = 0
+    const playResult = audio.play()
+    if (playResult && typeof playResult.catch === 'function') {
+      playResult.catch(() => {})
+    }
+  }
+
+  // TOP TURN 10: persists the toggle (best effort — storage can throw in
+  // private browsing) and flips `soundEnabled`, which the mute-sync
+  // effect above turns into actually muting/unmuting all three elements.
+  function toggleSound() {
+    const next = !soundEnabled
+    setSoundEnabled(next)
+    try {
+      window.localStorage.setItem(SOUND_ENABLED_STORAGE_KEY, String(next))
+    } catch {
+      // Storage unavailable — the toggle still applies this session, it
+      // just won't be remembered next time.
+    }
+  }
 
   if (!project || !project.playable) {
     return (
@@ -1286,6 +1459,25 @@ function LineupGame({ slug }: { slug: string }) {
                   <span className="lineup-stage__hud-item lineup-stage__hud-item--wave-read">
                     {waveDirection.toUpperCase()}
                   </span>
+
+                  {/* TOP TURN 10, Part F: one compact utility button in
+                      the HUD row itself — the literal "HUD area" the spec
+                      calls out — rather than a separate panel. The emoji
+                      is aria-hidden; the real accessible name is the
+                      explicit aria-label, so screen readers never depend
+                      on the icon alone. */}
+                  <button
+                    type="button"
+                    className="lineup-stage__sound-toggle"
+                    onClick={toggleSound}
+                    aria-label={
+                      soundEnabled ? 'Mute game audio' : 'Enable game audio'
+                    }
+                  >
+                    <span aria-hidden="true">
+                      {soundEnabled ? '🔊' : '🔇'}
+                    </span>
+                  </button>
                 </div>
 
                 {/* TOP TURN 08.3, Part C: tutorial copy moves inside the
