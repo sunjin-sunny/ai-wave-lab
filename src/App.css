@@ -3327,7 +3327,12 @@
   align-items: flex-start;
 
   width: 100%;
-  max-width: 360px;
+  /* TOP TURN 10.2: widened from 360px so the leaderboard's five columns
+     (rank/nickname/character/rides/wave) have room to breathe on desktop
+     — everything above this (portrait/headline/rides/reason) already
+     uses vw-relative clamp() sizing, so the extra width just gives it
+     more room rather than changing its layout. */
+  max-width: 480px;
   margin-top: clamp(28px, 4vw, 40px);
 }
 
@@ -3397,6 +3402,112 @@
   margin-top: 0;
 }
 
+/* ---------- wipeout-screen leaderboard (TOP TURN 10.2) ---------- */
+/* Extends the existing wipeout screen — same typography scale/colors as
+   .lineup-wipeout__* above (uppercase eyebrow + coral/navy hierarchy),
+   not a new visual system. */
+
+.lineup-leaderboard {
+  width: 100%;
+  margin-top: 28px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border);
+}
+
+.lineup-leaderboard__title {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--gray-light);
+}
+
+.lineup-leaderboard__subtitle {
+  margin-top: 2px;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  color: var(--navy);
+}
+
+.lineup-leaderboard__status {
+  margin-top: 12px;
+  font-size: 13px;
+  color: var(--gray);
+}
+
+.lineup-leaderboard__list {
+  display: flex;
+  flex-direction: column;
+
+  margin: 14px 0 0;
+  padding: 0;
+  list-style: none;
+
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.lineup-leaderboard__row {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1.3fr) minmax(0, 0.9fr) auto auto;
+  align-items: center;
+  gap: 6px 10px;
+
+  padding: 7px 10px;
+  border-bottom: 1px solid var(--border-soft);
+
+  font-size: 12px;
+  color: var(--navy-soft);
+}
+
+.lineup-leaderboard__row:last-child {
+  border-bottom: none;
+}
+
+.lineup-leaderboard__row--current {
+  background: var(--ocean-pale);
+}
+
+.lineup-leaderboard__rank {
+  font-weight: 700;
+  color: var(--gray-light);
+}
+
+.lineup-leaderboard__row--current .lineup-leaderboard__rank {
+  color: var(--ocean-deep);
+}
+
+.lineup-leaderboard__nickname {
+  overflow: hidden;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--navy);
+}
+
+.lineup-leaderboard__character {
+  overflow: hidden;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--gray-light);
+}
+
+.lineup-leaderboard__rides,
+.lineup-leaderboard__wave {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  text-align: right;
+}
+
 @media (max-width: 640px) {
   .lineup-game__inner {
     align-items: stretch;
@@ -3434,6 +3545,27 @@
 
   .lineup-wipeout__actions .lineup-game__start {
     width: 100%;
+  }
+
+  /* TOP TURN 10.2: tighter grid + smaller type on narrow screens so the
+     five-column row (rank/nickname/character/rides/wave) can't force
+     horizontal overflow — minmax(0, ...) on the text columns above
+     already lets them ellipsis-truncate; this just reclaims a bit more
+     width from the numeric columns and the row's own padding. */
+  .lineup-leaderboard__row {
+    grid-template-columns: 18px minmax(0, 1.2fr) minmax(0, 0.8fr) auto auto;
+    gap: 4px 6px;
+    padding: 6px 8px;
+    font-size: 11px;
+  }
+
+  .lineup-leaderboard__character {
+    font-size: 10px;
+  }
+
+  .lineup-leaderboard__rides,
+  .lineup-leaderboard__wave {
+    font-size: 10px;
   }
 
   /* TOP TURN 08.4, Part A/B: mobile-only wave override — NOT an edit to

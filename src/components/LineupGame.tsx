@@ -4,6 +4,8 @@ import Link from './Link'
 import { getProjectBySlug } from '../data/projects'
 import { LINEUP_CHARACTERS } from '../data/lineupCharacters'
 import type { LineupCharacterSprites } from '../data/lineupCharacters'
+import { submitLineupScore, getTopLineupScores } from '../lib/lineupLeaderboard'
+import type { LineupScore } from '../lib/lineupLeaderboard'
 
 const NICKNAME_MAX_LENGTH = 12
 
@@ -382,6 +384,21 @@ function LineupGame({ slug }: { slug: string }) {
   // phase-reactive ocean-ambience effect for the actual "begin only
   // after a user gesture" logic).
   const [soundEnabled, setSoundEnabled] = useState(readSoundEnabled)
+  // TOP TURN 10.2: the wipeout screen's leaderboard. 'idle' before any run
+  // has ended in a real wipeout this session; the submit-then-fetch effect
+  // below is the only thing that ever moves it past 'idle'. `submittedScore`
+  // is the exact row Supabase returned for THIS run's insert (used only to
+  // highlight it in `leaderboardEntries` — see the render below), and stays
+  // null whenever submission didn't succeed, so no fake rank is ever shown.
+  const [leaderboardStatus, setLeaderboardStatus] = useState<
+    'idle' | 'loading' | 'ready' | 'error'
+  >('idle')
+  const [leaderboardEntries, setLeaderboardEntries] = useState<LineupScore[]>(
+    [],
+  )
+  const [submittedScore, setSubmittedScore] = useState<LineupScore | null>(
+    null,
+  )
 
   // Refs, not state: `inputLockedRef` must block a second action
   // synchronously (a React state check can lose a race with a very fast
@@ -404,6 +421,13 @@ function LineupGame({ slug }: { slug: string }) {
   const oceanAudioRef = useRef<HTMLAudioElement | null>(null)
   const cleanRideAudioRef = useRef<HTMLAudioElement | null>(null)
   const wipeoutAudioRef = useRef<HTMLAudioElement | null>(null)
+  // TOP TURN 10.2: the actual duplicate-submission guard (not the
+  // [phase] effect dependency array alone — see the submit-then-fetch
+  // effect below). Reset only in beginWave, exactly when a genuinely new
+  // submittable run's wave 1 begins (see that reset's comment), so an
+  // incidental re-render while still on the wipeout screen (e.g. toggling
+  // sound) can never trigger a second insert for the same run.
+  const scoreSubmittedRef = useRef(false)
 
   function clearResultTimer() {
     if (resultTimerRef.current !== null) {
@@ -505,6 +529,17 @@ function LineupGame({ slug }: { slug: string }) {
     // paths call beginWave without going through startSession/
     // startNextWave, which used to be the only places that reset this).
     inputLockedRef.current = false
+    // TOP TURN 10.2: wave 1 of a non-tutorial run is the one and only
+    // moment a genuinely new, submittable run begins — true both for
+    // startSession's call and for completeTutorial's post-tutorial
+    // `beginWave(undefined, 1)` (which never goes through startSession).
+    // Mid-run advances (waveNumberForThisWave > 1) and every tutorial-
+    // lesson call (tutorialOverride set) must NOT reset this, or a
+    // still-pending submission guard from the run in progress could be
+    // cleared early.
+    if (!tutorialOverride && waveNumberForThisWave === 1) {
+      scoreSubmittedRef.current = false
+    }
     waveStartRef.current = Date.now()
     setWaveDirection(direction)
     setScenario(nextScenario)
@@ -979,6 +1014,66 @@ function LineupGame({ slug }: { slug: string }) {
     } else {
       ocean.pause()
     }
+  }, [phase])
+
+  // TOP TURN 10.2: submits this run's score exactly once when a run ends
+  // in a real WIPEOUT, then fetches the Top 10 regardless of whether that
+  // submission succeeded (a network/config failure must never hide the
+  // rest of the leaderboard — see lineupLeaderboard.ts). This can only
+  // ever fire for a genuine run-ending wipeout: scheduleWipeout (the only
+  // place that sets phase to 'wipeout') is itself only reached from
+  // wipeoutAfterResult when tutorialStep is null, so tutorial mistakes —
+  // which retry the lesson instead — never reach this at all. All access
+  // to Supabase stays inside lineupLeaderboard.ts; this only ever calls
+  // its two exported functions.
+  useEffect(() => {
+    if (phase !== 'wipeout') return
+    // scoreSubmittedRef (reset in beginWave, not here) is the actual
+    // duplicate guard — see its declaration. This effect is keyed only on
+    // `phase` so it can't refire from an incidental re-render while still
+    // on the wipeout screen, but the ref makes that guarantee explicit
+    // rather than relying solely on the dependency array.
+    if (scoreSubmittedRef.current) return
+    if (!characterId) return
+    scoreSubmittedRef.current = true
+
+    const characterIdForSubmission = characterId
+    const nicknameForSubmission = trimmedNickname
+    const ridesForSubmission = rides
+    const waveReachedForSubmission = waveNumber
+
+    let cancelled = false
+    setLeaderboardStatus('loading')
+    setSubmittedScore(null)
+
+    async function submitAndFetch() {
+      const submitResult = await submitLineupScore({
+        nickname: nicknameForSubmission,
+        characterId: characterIdForSubmission,
+        rides: ridesForSubmission,
+        waveReached: waveReachedForSubmission,
+      })
+      if (cancelled) return
+      if (submitResult.ok) {
+        setSubmittedScore(submitResult.data)
+      }
+
+      const topResult = await getTopLineupScores()
+      if (cancelled) return
+      if (topResult.ok) {
+        setLeaderboardEntries(topResult.data)
+        setLeaderboardStatus('ready')
+      } else {
+        setLeaderboardStatus('error')
+      }
+    }
+
+    submitAndFetch()
+
+    return () => {
+      cancelled = true
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase])
 
   // TOP TURN 10, Part D/E: reused for both one-shot SFX — reset
@@ -1597,6 +1692,79 @@ function LineupGame({ slug }: { slug: string }) {
               >
                 Change Surfer
               </button>
+            </div>
+
+            {/* TOP TURN 10.2: extends the existing wipeout screen — not a
+                separate route/modal. Character names are resolved from
+                LINEUP_CHARACTERS (already imported above), never
+                duplicated inside lineupLeaderboard.ts. */}
+            <div className="lineup-leaderboard">
+              <p className="lineup-leaderboard__title">The Lineup</p>
+              <p className="lineup-leaderboard__subtitle">Top Riders</p>
+
+              {leaderboardStatus === 'loading' && (
+                <p className="lineup-leaderboard__status">
+                  Loading Lineup...
+                </p>
+              )}
+
+              {leaderboardStatus === 'error' && (
+                <p className="lineup-leaderboard__status">
+                  The Lineup Is Quiet Right Now.
+                </p>
+              )}
+
+              {leaderboardStatus === 'ready' &&
+                leaderboardEntries.length === 0 && (
+                  <p className="lineup-leaderboard__status">
+                    No Riders Yet.
+                    <br />
+                    Be The First In The Lineup.
+                  </p>
+                )}
+
+              {leaderboardStatus === 'ready' &&
+                leaderboardEntries.length > 0 && (
+                  <ol className="lineup-leaderboard__list">
+                    {leaderboardEntries.map((entry, index) => {
+                      const entryCharacter = LINEUP_CHARACTERS.find(
+                        (c) => c.id === entry.characterId,
+                      )
+                      const isCurrentPlayer =
+                        submittedScore !== null &&
+                        entry.createdAt === submittedScore.createdAt
+
+                      return (
+                        <li
+                          key={entry.createdAt}
+                          className={`lineup-leaderboard__row ${
+                            isCurrentPlayer
+                              ? 'lineup-leaderboard__row--current'
+                              : ''
+                          }`}
+                        >
+                          <span className="lineup-leaderboard__rank">
+                            {String(index + 1).padStart(2, '0')}
+                          </span>
+                          <span className="lineup-leaderboard__nickname">
+                            {entry.nickname}
+                          </span>
+                          <span className="lineup-leaderboard__character">
+                            {entryCharacter
+                              ? entryCharacter.name
+                              : entry.characterId}
+                          </span>
+                          <span className="lineup-leaderboard__rides">
+                            {entry.rides} Rides
+                          </span>
+                          <span className="lineup-leaderboard__wave">
+                            Wave {entry.waveReached}
+                          </span>
+                        </li>
+                      )
+                    })}
+                  </ol>
+                )}
             </div>
           </div>
         )}
