@@ -1,26 +1,38 @@
 import { useEffect, useRef, useState } from 'react'
-import type { CSSProperties } from 'react'
+import '../LineupGame.css'
 import Link from './Link'
+import LineupCharacterSelect from './lineup/LineupCharacterSelect'
+import LineupReady from './lineup/LineupReady'
+import LineupStage from './lineup/LineupStage'
 import { getProjectBySlug } from '../data/projects'
 import { LINEUP_CHARACTERS } from '../data/lineupCharacters'
 import type { LineupCharacterSprites } from '../data/lineupCharacters'
 import { submitLineupScore, getTopLineupScores } from '../lib/lineupLeaderboard'
 import type { LineupScore } from '../lib/lineupLeaderboard'
+import {
+  pickWaveDirection,
+  pickScenario,
+  pickRelationship,
+  pickNpcCharacter,
+  getWaveDurationMs,
+  WAVE_DURATION_TIER_1_MS,
+  classifyTakeoffTiming,
+} from '../lib/lineupGameLogic'
+import type {
+  WaveDirection,
+  LineupScenario,
+  NpcRelationship,
+} from '../lib/lineupGameLogic'
 
 const NICKNAME_MAX_LENGTH = 12
 
-// Shared gameplay-environment art — not per-character, so (like the wave
-// scenario logic below) it stays local to this file rather than joining
-// data/lineupCharacters.ts, which is specifically the character mapping.
 const BASE = import.meta.env.BASE_URL
-const WAVES_DIR = `${BASE}images/lineup/waves`
-const OCEAN_SRC = `${WAVES_DIR}/ocean-lineup.png`
-const WAVE_PEELING_RIGHT_SRC = `${WAVES_DIR}/wave-peeling-right.png`
-const WAVE_DUMP_SRC = `${WAVES_DIR}/wave-dump.png`
-
-// TOP TURN 10: same BASE_URL-prefixed path strategy as the art above, so
-// audio resolves correctly under the GitHub Pages /ai-wave-lab/ base, not
-// just on localhost.
+// TOP TURN 11.3C: the wave/ocean art path constants that used to live
+// here (WAVES_DIR/OCEAN_SRC/etc.) moved to LineupStage.tsx, since that's
+// the only place that renders them now — same BASE_URL-prefixed
+// convention, just declared locally there instead of threaded down as
+// props. AUDIO_DIR stays here since audio playback stays owned by this
+// component.
 const AUDIO_DIR = `${BASE}audio/lineup`
 const OCEAN_LOOP_SRC = `${AUDIO_DIR}/ocean-loop.mp3`
 const CLEAN_RIDE_SFX_SRC = `${AUDIO_DIR}/clean-ride.mp3`
@@ -46,108 +58,6 @@ function readSoundEnabled(): boolean {
 }
 
 type Phase = 'setup' | 'ready' | 'playing' | 'wipeout'
-
-// Only three wave scenarios exist so far, and nothing beyond this file
-// needs to know about them yet (no priority/paddle-up logic reads it) —
-// kept as a plain local union instead of a shared data module, unlike the
-// character mapping in data/lineupCharacters.ts.
-const WAVE_DIRECTIONS = ['left', 'right', 'dump'] as const
-type WaveDirection = (typeof WAVE_DIRECTIONS)[number]
-
-function pickWaveDirection(exclude?: WaveDirection): WaveDirection {
-  const options = exclude
-    ? WAVE_DIRECTIONS.filter((direction) => direction !== exclude)
-    : WAVE_DIRECTIONS
-  return options[Math.floor(Math.random() * options.length)]
-}
-
-// Lineup-etiquette hazards. TOP TURN 06 added priority (a surfer closer
-// to the peak); TOP TURN 07 added paddle-out (a surfer paddling back
-// through the rideable line). Only one hazard *type* exists per wave — a
-// plain union plus a single "which NPC" slot is enough; no need for a
-// list or combined-hazard modeling yet. DUMP waves never carry a hazard
-// (see pickScenario), so this only ever applies to LEFT/RIGHT waves.
-type LineupScenario = 'clear' | 'priority-surfer' | 'paddle-out-surfer'
-const PRIORITY_SCENARIO_CHANCE = 0.25 // 25% of non-dump waves
-const PADDLE_OUT_SCENARIO_CHANCE = 0.2 // 20% of non-dump waves
-// remainder (55%) is 'clear' — kept implicit rather than its own named
-// constant, since it's just "whatever's left"
-
-function pickScenario(direction: WaveDirection): LineupScenario {
-  if (direction === 'dump') return 'clear'
-  const roll = Math.random()
-  if (roll < PRIORITY_SCENARIO_CHANCE) return 'priority-surfer'
-  if (roll < PRIORITY_SCENARIO_CHANCE + PADDLE_OUT_SCENARIO_CHANCE) {
-    return 'paddle-out-surfer'
-  }
-  return 'clear'
-}
-
-// TOP TURN 07.1: NPC presence alone no longer means danger — each hazard
-// *type* now has a spatial relationship deciding whether it's actually a
-// hazard this wave. 'npc-priority'/'blocking' are the true hazards (STOP
-// required); 'player-priority'/'clear-line' are safe and fall through to
-// completely normal direction+timing judgment in resolveAction. Only
-// meaningful when scenario isn't 'clear' — null otherwise.
-type NpcRelationship =
-  | 'npc-priority'
-  | 'player-priority'
-  | 'blocking'
-  | 'clear-line'
-  | null
-const HAZARD_RELATIONSHIP_CHANCE = 0.5 // 50/50 split between the hazardous and safe spatial variant, within whichever scenario was chosen
-
-function pickRelationship(scenario: LineupScenario): NpcRelationship {
-  if (scenario === 'priority-surfer') {
-    return Math.random() < HAZARD_RELATIONSHIP_CHANCE
-      ? 'npc-priority'
-      : 'player-priority'
-  }
-  if (scenario === 'paddle-out-surfer') {
-    return Math.random() < HAZARD_RELATIONSHIP_CHANCE ? 'blocking' : 'clear-line'
-  }
-  return null
-}
-
-// Position class is purely a function of (scenario, relationship,
-// waveDirection) — describes the NPC's actual visual side, same
-// convention as the wave art's own mirroring: whichever class is used
-// for `waveDirection === 'right'` places the NPC exactly where a RIGHT
-// wave's spatial rule (see TOP TURN 07.1 spec) says they belong, and the
-// LEFT case is its mirror. Kept as a pure function outside the component,
-// like pickWaveDirection/pickScenario, since it needs no component state.
-function npcPositionClass(
-  scenario: LineupScenario,
-  relationship: NpcRelationship,
-  direction: WaveDirection,
-): string {
-  if (scenario === 'priority-surfer') {
-    if (relationship === 'npc-priority') {
-      return direction === 'right'
-        ? 'lineup-stage__npc--peak-left'
-        : 'lineup-stage__npc--peak-right'
-    }
-    return direction === 'right'
-      ? 'lineup-stage__npc--shoulder-right'
-      : 'lineup-stage__npc--shoulder-left'
-  }
-  if (scenario === 'paddle-out-surfer') {
-    if (relationship === 'blocking') {
-      return direction === 'right'
-        ? 'lineup-stage__npc--path-right'
-        : 'lineup-stage__npc--path-left'
-    }
-    return direction === 'right'
-      ? 'lineup-stage__npc--outpath-left'
-      : 'lineup-stage__npc--outpath-right'
-  }
-  return ''
-}
-
-function pickNpcCharacter(excludePlayerId: string) {
-  const options = LINEUP_CHARACTERS.filter((c) => c.id !== excludePlayerId)
-  return options[Math.floor(Math.random() * options.length)]
-}
 
 // TOP TURN 08: the first-run tutorial is four FIXED waves — not a
 // separate engine, just fixed (direction, scenario, relationship) inputs
@@ -235,41 +145,6 @@ const POSE_GUIDE_ENTRIES: PoseGuideEntry[] = [
   { spriteKey: 'wipeout', label: 'WIPEOUT', caption: 'BAD CALL' },
 ]
 
-// Progressive speed (TOP TURN 07.2; retuned in 07.3 — first to a gentler
-// curve after playtesting found the original tiers compressed too fast
-// against a fixed RESULT_DISPLAY_MS causing visual overlap [the actual
-// fix for that is INTER_WAVE_GAP_MS below, not the curve itself], then to
-// this slightly more aggressive curve so the pace increase reads clearly
-// by wave 5-8): the incoming-wave animation gets faster as the player
-// survives more waves, via a small staircase of named tiers rather than a
-// continuous formula — easy to read, easy to retune. 2100ms is an
-// explicit floor; the game never gets faster than that in this stage.
-const WAVE_DURATION_TIER_1_MS = 3200 // waves 1-4
-const WAVE_DURATION_TIER_2_MS = 2900 // waves 5-8
-const WAVE_DURATION_TIER_3_MS = 2600 // waves 9-12
-const WAVE_DURATION_TIER_4_MS = 2300 // waves 13-16
-const WAVE_DURATION_TIER_5_MS = 2100 // waves 17+ (floor)
-
-function getWaveDurationMs(waveNumber: number): number {
-  if (waveNumber >= 17) return WAVE_DURATION_TIER_5_MS
-  if (waveNumber >= 13) return WAVE_DURATION_TIER_4_MS
-  if (waveNumber >= 9) return WAVE_DURATION_TIER_3_MS
-  if (waveNumber >= 5) return WAVE_DURATION_TIER_2_MS
-  return WAVE_DURATION_TIER_1_MS
-}
-
-// Takeoff-timing thresholds, expressed as a fraction of however long THIS
-// wave's approach takes (getWaveDurationMs) rather than fixed millisecond
-// values — so the valid window scales proportionally as the game speeds
-// up instead of staying a fixed-ms slice of an ever-shorter animation.
-// Chosen to match the original TOP TURN 05 feel at the slowest tier
-// (1400/3200 ≈ 0.44, 2400/3200 = 0.75). The wave's own CSS animation
-// reads the same duration via a custom property (see .lineup-stage__ocean
-// below and .lineup-wave-wrap in App.css) — one source of truth, so the
-// visual wave and this judgment can never drift apart.
-const TAKEOFF_EARLY_END_RATIO = 0.44 // before this fraction of the wave: TOO EARLY
-const TAKEOFF_WINDOW_END_RATIO = 0.75 // EARLY_END..this: valid window; after: TOO LATE
-
 const RESULT_DISPLAY_MS = 1100 // how long feedback + ride/wipeout sprite shows before advancing
 // How long the player (and, during a priority scenario, the NPC — see
 // schedulePaddleTransition) stays on WAIT before switching to PADDLE at
@@ -286,16 +161,20 @@ const PADDLE_TRANSITION_MS = 500
 // appears.
 const INTER_WAVE_GAP_MS = 900
 
-type WaveState = 'incoming' | 'result' | 'gap'
+// TOP TURN 11.3C: exported (WaveState, NpcSpriteState, Feedback) so
+// LineupStage.tsx can type the props LineupGame passes it — a type-only
+// import, fully erased by verbatimModuleSyntax, so this doesn't create a
+// real runtime dependency from LineupStage back onto this file.
+export type WaveState = 'incoming' | 'result' | 'gap'
 type PlayerAction = 'left' | 'stop' | 'right'
 type PlayerSpriteState = 'wait' | 'paddle' | 'ride' | 'wipeout'
 // The NPC never wipes out in this stage — it only ever waits, paddles
 // (priority NPC, facing-camera), paddles out (paddle-out NPC, dedicated
 // rear-view pose — TOP TURN 08.4), or demonstrates taking the wave it has
 // priority on.
-type NpcSpriteState = 'wait' | 'paddle' | 'paddleout' | 'ride'
-type FeedbackTone = 'success' | 'neutral' | 'danger'
-interface Feedback {
+export type NpcSpriteState = 'wait' | 'paddle' | 'paddleout' | 'ride'
+export type FeedbackTone = 'success' | 'neutral' | 'danger'
+export interface Feedback {
   text: string
   tone: FeedbackTone
 }
@@ -806,13 +685,7 @@ function LineupGame({ slug }: { slug: string }) {
     setWaveState('result')
 
     const elapsed = (Date.now() - waveStartRef.current) % waveDurationMs
-    const progress = elapsed / waveDurationMs
-    const timing: 'early' | 'good' | 'late' =
-      progress < TAKEOFF_EARLY_END_RATIO
-        ? 'early'
-        : progress < TAKEOFF_WINDOW_END_RATIO
-          ? 'good'
-          : 'late'
+    const timing = classifyTakeoffTiming(elapsed, waveDurationMs)
 
     if (waveDirection === 'dump') {
       if (action === 'stop') {
@@ -1193,6 +1066,18 @@ function LineupGame({ slug }: { slug: string }) {
         ? 'paddling out through your riding line'
         : 'paddling out, clear of your riding line'
 
+  // TOP TURN 11.3C: resolves tutorialStep into the exact content
+  // LineupStage's tutorial panel renders, so Stage never needs to import
+  // TUTORIAL_WAVES itself — it only renders whatever content the parent
+  // decided is current, same as every other piece of stage state.
+  const tutorialPanel =
+    tutorialStep !== null
+      ? {
+          title: TUTORIAL_WAVES[tutorialStep].title,
+          instruction: TUTORIAL_WAVES[tutorialStep].instruction,
+        }
+      : null
+
   // TOP TURN 08.3: 08.1/08.2 shrank the whole stage to force every piece
   // of external UI (HUD, hints, controls) to fit above/below a cropped
   // ocean — that traded away real wave-travel distance and was rolled
@@ -1226,139 +1111,27 @@ function LineupGame({ slug }: { slug: string }) {
         )}
 
         {phase === 'setup' && (
-          <>
-            <p className="lineup-game__label">
-              Choose your surfer and paddle out.
-            </p>
-
-            <div
-              className="lineup-character-grid"
-              role="radiogroup"
-              aria-label="Choose your surfer"
-            >
-              {LINEUP_CHARACTERS.map((character) => {
-                const selected = character.id === characterId
-                return (
-                  <button
-                    key={character.id}
-                    type="button"
-                    role="radio"
-                    aria-checked={selected}
-                    className={`lineup-character-card ${
-                      selected ? 'lineup-character-card--selected' : ''
-                    }`}
-                    onClick={() => setCharacterId(character.id)}
-                  >
-                    <img
-                      className="lineup-character-card__portrait"
-                      src={character.portrait}
-                      alt={`${character.name} — ${character.label}`}
-                    />
-
-                    {/* TOP TURN 09: name is now the primary label; the
-                        generic SURFER XX tag stays as small secondary
-                        metadata underneath, read from the same character
-                        data — never hardcoded per component. */}
-                    <span className="lineup-character-card__label">
-                      <span className="lineup-character-card__name">
-                        {character.name}
-                      </span>
-                      <span className="lineup-character-card__tag">
-                        {character.label}
-                      </span>
-                    </span>
-
-                    {selected && (
-                      <span
-                        className="lineup-character-card__check"
-                        aria-hidden="true"
-                      >
-                        ✓
-                      </span>
-                    )}
-                  </button>
-                )
-              })}
-            </div>
-
-            <div className="lineup-nickname">
-              <label
-                className="lineup-nickname__label"
-                htmlFor="lineup-nickname-input"
-              >
-                Your Surf Name
-              </label>
-
-              <input
-                id="lineup-nickname-input"
-                className="lineup-nickname__input"
-                type="text"
-                value={nickname}
-                onChange={(event) => setNickname(event.target.value)}
-                placeholder="SUNNY"
-                maxLength={NICKNAME_MAX_LENGTH}
-                autoComplete="off"
-              />
-            </div>
-
-            <button
-              type="button"
-              className="project-cta project-cta--primary lineup-game__start"
-              disabled={!canEnter}
-              onClick={handleEnter}
-            >
-              Enter The Lineup
-            </button>
-          </>
+          <LineupCharacterSelect
+            selectedCharacterId={characterId}
+            onSelectCharacter={setCharacterId}
+            nickname={nickname}
+            onNicknameChange={setNickname}
+            nicknameMaxLength={NICKNAME_MAX_LENGTH}
+            canEnter={canEnter}
+            onEnter={handleEnter}
+          />
         )}
 
         {phase === 'ready' && selectedCharacter && (
-          <div className="lineup-ready">
-            <img
-              className="lineup-ready__portrait"
-              src={selectedCharacter.portrait}
-              alt={selectedCharacter.label}
-            />
-
-            <p className="lineup-ready__character">
-              {selectedCharacter.label}
-            </p>
-
-            <p className="lineup-ready__nickname">{trimmedNickname}</p>
-
-            <p className="lineup-ready__headline">You’re in the lineup</p>
-
-            <div className="lineup-ready__actions">
-              <button
-                type="button"
-                className="project-cta project-cta--primary lineup-game__start"
-                onClick={tutorialCompleted ? startSession : startTutorial}
-              >
-                {tutorialCompleted ? 'Start Session' : 'Start Tutorial'}
-              </button>
-
-              {/* TOP TURN 08: a first-ever session offers Skip Tutorial
-                  (marks completed, jumps straight to normal play); once
-                  completed, the same slot offers Play Tutorial (replay
-                  without touching the completion flag — see
-                  startTutorial). */}
-              <button
-                type="button"
-                className="text-link lineup-ready__secondary"
-                onClick={tutorialCompleted ? startTutorial : skipTutorial}
-              >
-                {tutorialCompleted ? 'Play Tutorial' : 'Skip Tutorial'}
-              </button>
-
-              <button
-                type="button"
-                className="text-link lineup-ready__change"
-                onClick={() => setPhase('setup')}
-              >
-                Change Surfer
-              </button>
-            </div>
-          </div>
+          <LineupReady
+            character={selectedCharacter}
+            nickname={trimmedNickname}
+            tutorialCompleted={tutorialCompleted}
+            onStartSession={startSession}
+            onStartTutorial={startTutorial}
+            onSkipTutorial={skipTutorial}
+            onChangeSurfer={() => setPhase('setup')}
+          />
         )}
 
         {phase === 'playing' && selectedCharacter && (
@@ -1424,236 +1197,34 @@ function LineupGame({ slug }: { slug: string }) {
             )}
 
             {!showPoseGuide && (
-            <div className="lineup-stage">
-              <div className="lineup-stage__sky" />
-              <div
-                className="lineup-stage__ocean"
-                style={
-                  {
-                    backgroundImage: `url(${OCEAN_SRC})`,
-                    // Single source of truth for wave speed (TOP TURN
-                    // 07.2): set once here from waveDurationMs, read by
-                    // both .lineup-wave-wrap's animation-duration and the
-                    // paddle-out NPC's drift animation below (CSS custom
-                    // properties inherit), so the visual wave, the NPC
-                    // drift, and the JS judgment in resolveAction can
-                    // never disagree about how fast this wave is.
-                    '--lineup-wave-duration': `${waveDurationMs}ms`,
-                  } as CSSProperties
-                }
-              >
-                {/* Wrapper handles the incoming-wave *position/depth*
-                    (animated `top` + `scale`); the inner <img> handles
-                    LEFT/RIGHT *mirroring* (static scaleX). Two separate
-                    elements so the approach animation can never clobber
-                    the mirror transform, or vice versa. TOP TURN 07.3:
-                    unmounted entirely once the wave reaches the inter-wave
-                    gap (see enterGap) — the old wave must be fully gone,
-                    not just finished animating, before the next one can
-                    ever appear. TOP TURN 08.3: back to the original
-                    lineup-wave-approach keyframes on every viewport — the
-                    desktop-only shrunk copy from 08.2 is gone along with
-                    the shrunk stage it was compensating for (see
-                    App.css). */}
-                {waveState !== 'gap' && (
-                  <div key={`wave-${waveKey}`} className="lineup-wave-wrap">
-                    <img
-                      className={`lineup-wave-img ${
-                        waveDirection === 'left'
-                          ? 'lineup-wave-img--mirrored'
-                          : ''
-                      }`}
-                      src={
-                        waveDirection === 'dump'
-                          ? WAVE_DUMP_SRC
-                          : WAVE_PEELING_RIGHT_SRC
-                      }
-                      alt=""
-                      aria-hidden="true"
-                    />
-                  </div>
-                )}
-
-                {/* Position is the whole game (TOP TURN 07.1, Part E):
-                    NPC presence alone is never the hazard signal, only
-                    where they're sitting relative to the peak/player/line
-                    is — see npcPositionClass. Reuses the same wrapper/img
-                    split as the wave above, so position and the
-                    LEFT-vs-RIGHT mirror never fight over one transform.
-                    TOP TURN 07.2: a paddle-out NPC also drifts toward the
-                    outside (a separate transform, on this same wrapper,
-                    that only ever animates `translateY` — it's additive
-                    with the static `translateX(-50%)` centering, never
-                    replacing it) so it reads as "paddling back out"
-                    rather than "paddling for this wave", which a
-                    stationary priority NPC still communicates by staying
-                    put. `key={waveKey}` restarts that drift fresh on every
-                    new wave, same as the wave art itself. */}
-                {npcCharacter && (
-                  <div
-                    key={`npc-${waveKey}`}
-                    className={`lineup-stage__npc ${npcPositionClass(
-                      scenario,
-                      relationship,
-                      waveDirection,
-                    )} ${
-                      scenario === 'paddle-out-surfer'
-                        ? 'lineup-stage__npc--drifting'
-                        : ''
-                    }`}
-                  >
-                    <img
-                      className={`lineup-stage__npc-sprite ${
-                        waveDirection === 'left'
-                          ? 'lineup-stage__npc-sprite--mirrored'
-                          : ''
-                      }`}
-                      src={npcCharacter.sprites[npcSprite]}
-                      alt={`${npcCharacter.label} ${npcAltSuffix}`}
-                    />
-                  </div>
-                )}
-
-                <div className="lineup-stage__player">
-                  {/* Bob animation lives on this middle wrapper (its own
-                      `transform`, via keyframes) so the RIDE mirror below
-                      — a plain static `transform: scaleX(-1)` on the img
-                      — never has to share/fight over the same property. */}
-                  <div className="lineup-stage__sprite-bob">
-                    <img
-                      className={`lineup-stage__sprite ${
-                        playerRideMirrored ? 'lineup-stage__sprite--mirrored' : ''
-                      }`}
-                      src={spriteSrc}
-                      alt={`${selectedCharacter.label} ${spriteAltSuffix}`}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* TOP TURN 08.3, Part B/E: the "TOP UI ZONE" — HUD (WAVE /
-                  RIDES / nickname / WAVE READ) as a compact overlay pinned
-                  to the stage's own top edge. Absolutely positioned inside
-                  .lineup-stage (a sibling of sky/ocean, not a flex child of
-                  either) so it never adds to the stage's own height or
-                  pushes the ocean down — it just paints on top of the sky.
-                  Semi-opaque so it stays readable over both sky and, if
-                  content wraps taller than the sky band, the ocean art
-                  beneath it. */}
-              <div className="lineup-stage__top-zone">
-                <div className="lineup-stage__hud">
-                  <span className="lineup-stage__hud-item">
-                    WAVE {String(waveNumber).padStart(2, '0')}
-                  </span>
-                  <span className="lineup-stage__hud-item">
-                    RIDES {rides}
-                  </span>
-                  <span className="lineup-stage__hud-item lineup-stage__hud-item--nickname">
-                    {trimmedNickname}
-                  </span>
-                  <span className="lineup-stage__hud-item lineup-stage__hud-item--wave-read">
-                    {waveDirection.toUpperCase()}
-                  </span>
-
-                  {/* TOP TURN 10, Part F: one compact utility button in
-                      the HUD row itself — the literal "HUD area" the spec
-                      calls out — rather than a separate panel. The emoji
-                      is aria-hidden; the real accessible name is the
-                      explicit aria-label, so screen readers never depend
-                      on the icon alone. */}
-                  <button
-                    type="button"
-                    className="lineup-stage__sound-toggle"
-                    onClick={toggleSound}
-                    aria-label={
-                      soundEnabled ? 'Mute game audio' : 'Enable game audio'
-                    }
-                  >
-                    <span aria-hidden="true">
-                      {soundEnabled ? '🔊' : '🔇'}
-                    </span>
-                  </button>
-                </div>
-
-                {/* TOP TURN 08.3, Part C: tutorial copy moves inside the
-                    stage's top zone too — same short-title + one-instruction
-                    shape as before (TOP TURN 08), just repositioned so it
-                    overlays the sky instead of sitting in the page's normal
-                    flow above the stage. */}
-                {tutorialStep !== null && (
-                  <div className="lineup-stage__tutorial-panel">
-                    <p className="lineup-stage__tutorial-panel-title">
-                      {TUTORIAL_WAVES[tutorialStep].title}
-                    </p>
-                    <p className="lineup-stage__tutorial-panel-instruction">
-                      {TUTORIAL_WAVES[tutorialStep].instruction}
-                    </p>
-                  </div>
-                )}
-
-                {showTutorialOutro && (
-                  <div className="lineup-stage__tutorial-panel lineup-stage__tutorial-panel--outro">
-                    <p className="lineup-stage__tutorial-panel-title">
-                      YOU’RE ON YOUR OWN
-                    </p>
-                  </div>
-                )}
-
-                {/* Outside tutorial, the hazard rule takes the tutorial
-                    panel's old spot instead — the two never show at once,
-                    since a fixed tutorial lesson's own instruction text
-                    already covers the same rule when tutorialStep is set. */}
-                {tutorialStep === null && !showTutorialOutro && hazardHint && (
-                  <p className="lineup-stage__hazard-hint">{hazardHint}</p>
-                )}
-              </div>
-
-              {feedback && (
-                <div
-                  className={`lineup-stage__feedback lineup-stage__feedback--${feedback.tone}`}
-                  aria-live="polite"
-                >
-                  {feedback.text}
-                </div>
-              )}
-
-              {/* TOP TURN 08.3, Part D/E: the "BOTTOM CONTROL ZONE" —
-                  LEFT/STOP/RIGHT overlaid on the stage's own bottom edge
-                  over a subtle darkening backdrop, rather than a separate
-                  row below the stage. Absolutely positioned the same way
-                  as the top zone, so it doesn't add to the stage's height;
-                  the player/NPC sit well clear of it at the restored
-                  stage size (see .lineup-stage__player/.lineup-stage__npc
-                  bottom offsets in App.css). Keyboard support (ArrowLeft/
-                  ArrowRight/ArrowDown/Space) is unchanged — it never
-                  depended on these buttons' position in the DOM. */}
-              <div className="lineup-stage__controls" aria-label="Surf controls">
-                <button
-                  type="button"
-                  className="lineup-controls__button"
-                  disabled={waveState !== 'incoming'}
-                  onClick={() => resolveAction('left')}
-                >
-                  Left
-                </button>
-                <button
-                  type="button"
-                  className="lineup-controls__button lineup-controls__button--stop"
-                  disabled={waveState !== 'incoming'}
-                  onClick={() => resolveAction('stop')}
-                >
-                  Stop
-                </button>
-                <button
-                  type="button"
-                  className="lineup-controls__button"
-                  disabled={waveState !== 'incoming'}
-                  onClick={() => resolveAction('right')}
-                >
-                  Right
-                </button>
-              </div>
-            </div>
+              <LineupStage
+                waveDurationMs={waveDurationMs}
+                waveState={waveState}
+                waveKey={waveKey}
+                waveDirection={waveDirection}
+                npcCharacter={npcCharacter}
+                npcSprite={npcSprite}
+                scenario={scenario}
+                relationship={relationship}
+                npcAltSuffix={npcAltSuffix}
+                selectedCharacter={selectedCharacter}
+                spriteSrc={spriteSrc}
+                playerRideMirrored={playerRideMirrored}
+                spriteAltSuffix={spriteAltSuffix}
+                waveNumber={waveNumber}
+                rides={rides}
+                nickname={trimmedNickname}
+                soundEnabled={soundEnabled}
+                onToggleSound={toggleSound}
+                tutorialPanel={tutorialPanel}
+                showTutorialOutro={showTutorialOutro}
+                hazardHint={hazardHint}
+                feedback={feedback}
+                controlsDisabled={waveState !== 'incoming'}
+                onLeft={() => resolveAction('left')}
+                onStop={() => resolveAction('stop')}
+                onRight={() => resolveAction('right')}
+              />
             )}
           </div>
         )}
