@@ -4,6 +4,7 @@ import Link from './Link'
 import LineupCharacterSelect from './lineup/LineupCharacterSelect'
 import LineupReady from './lineup/LineupReady'
 import LineupStage from './lineup/LineupStage'
+import LineupWipeoutResult from './lineup/LineupWipeoutResult'
 import { getProjectBySlug } from '../data/projects'
 import { LINEUP_CHARACTERS } from '../data/lineupCharacters'
 import type { LineupCharacterSprites } from '../data/lineupCharacters'
@@ -1230,114 +1231,17 @@ function LineupGame({ slug }: { slug: string }) {
         )}
 
         {phase === 'wipeout' && selectedCharacter && (
-          <div className="lineup-wipeout">
-            <img
-              className="lineup-wipeout__portrait"
-              src={selectedCharacter.sprites.wipeout}
-              alt={`${selectedCharacter.label} wiped out`}
-            />
-
-            <p className="lineup-wipeout__headline">Wipeout</p>
-
-            <p className="lineup-wipeout__character">
-              {selectedCharacter.label}
-            </p>
-            <p className="lineup-wipeout__nickname">{trimmedNickname}</p>
-
-            <p className="lineup-wipeout__rides">Rides: {rides}</p>
-            <p className="lineup-wipeout__reason">{wipeoutReason}</p>
-
-            <div className="lineup-wipeout__actions">
-              <button
-                type="button"
-                className="project-cta project-cta--primary lineup-game__start"
-                onClick={handleTryAgain}
-              >
-                Try Again
-              </button>
-
-              <button
-                type="button"
-                className="text-link"
-                onClick={handleChangeSurferFromWipeout}
-              >
-                Change Surfer
-              </button>
-            </div>
-
-            {/* TOP TURN 10.2: extends the existing wipeout screen — not a
-                separate route/modal. Character names are resolved from
-                LINEUP_CHARACTERS (already imported above), never
-                duplicated inside lineupLeaderboard.ts. */}
-            <div className="lineup-leaderboard">
-              <p className="lineup-leaderboard__title">The Lineup</p>
-              <p className="lineup-leaderboard__subtitle">Top Riders</p>
-
-              {leaderboardStatus === 'loading' && (
-                <p className="lineup-leaderboard__status">
-                  Loading Lineup...
-                </p>
-              )}
-
-              {leaderboardStatus === 'error' && (
-                <p className="lineup-leaderboard__status">
-                  The Lineup Is Quiet Right Now.
-                </p>
-              )}
-
-              {leaderboardStatus === 'ready' &&
-                leaderboardEntries.length === 0 && (
-                  <p className="lineup-leaderboard__status">
-                    No Riders Yet.
-                    <br />
-                    Be The First In The Lineup.
-                  </p>
-                )}
-
-              {leaderboardStatus === 'ready' &&
-                leaderboardEntries.length > 0 && (
-                  <ol className="lineup-leaderboard__list">
-                    {leaderboardEntries.map((entry, index) => {
-                      const entryCharacter = LINEUP_CHARACTERS.find(
-                        (c) => c.id === entry.characterId,
-                      )
-                      const isCurrentPlayer =
-                        submittedScore !== null &&
-                        entry.createdAt === submittedScore.createdAt
-
-                      return (
-                        <li
-                          key={entry.createdAt}
-                          className={`lineup-leaderboard__row ${
-                            isCurrentPlayer
-                              ? 'lineup-leaderboard__row--current'
-                              : ''
-                          }`}
-                        >
-                          <span className="lineup-leaderboard__rank">
-                            {String(index + 1).padStart(2, '0')}
-                          </span>
-                          <span className="lineup-leaderboard__nickname">
-                            {entry.nickname}
-                          </span>
-                          <span className="lineup-leaderboard__character">
-                            {entryCharacter
-                              ? entryCharacter.name
-                              : entry.characterId}
-                          </span>
-                          <span className="lineup-leaderboard__rides">
-                            {entry.rides} Rides
-                          </span>
-                          <span className="lineup-leaderboard__wave">
-                            Wave {entry.waveReached}
-                          </span>
-                        </li>
-                      )
-                    })}
-                  </ol>
-                )}
-            </div>
-          </div>
+          <LineupWipeoutResult
+            character={selectedCharacter}
+            nickname={trimmedNickname}
+            rides={rides}
+            reason={wipeoutReason}
+            onTryAgain={handleTryAgain}
+            onChangeSurfer={handleChangeSurferFromWipeout}
+            leaderboardStatus={leaderboardStatus}
+            leaderboardEntries={leaderboardEntries}
+            submittedScore={submittedScore}
+          />
         )}
       </div>
     </section>
