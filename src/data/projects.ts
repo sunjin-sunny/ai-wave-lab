@@ -67,6 +67,15 @@ export interface Project {
   githubUrl?: string
   /** Whether this project has a playable page at /projects/:slug/play. */
   playable?: boolean
+  /**
+   * TOP TURN 12.4: when set, the Play CTA opens this URL instead of the
+   * internal /projects/:slug/play route — used once a game has moved to
+   * its own standalone deployment. `playable` stays true alongside this
+   * (see LineupGame.tsx's own guard, and the CTA's visibility condition
+   * in ProjectDetail.tsx), so the internal route keeps working as a
+   * fallback if visited directly; only the CTA's target changes.
+   */
+  playUrl?: string
 
   // The project's visual identity, used both as the small Selected Waves
   // carousel card image AND the large project-detail hero visual. All
@@ -193,6 +202,7 @@ visualAlt:
     year: 2026,
     featured: true,
     playable: true,
+    playUrl: 'https://sunjin-sunny.github.io/the-lineup/',
     visualType: 'pixel-art',
     visualSrc: `${BASE}images/the-lineup-key-visual.png`,
     visualAlt:

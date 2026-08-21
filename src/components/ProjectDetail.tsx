@@ -94,13 +94,25 @@ function ProjectDetail({ slug }: { slug: string }) {
                 <div className="project-hero__actions">
 
                   {project.playable && (
-                    <Link
-                      href={`/projects/${project.slug}/play`}
-                      className="project-cta project-cta--primary"
-                    >
-                      <span>▶</span>
-                      Play {project.title}
-                    </Link>
+                    project.playUrl ? (
+                      <a
+                        className="project-cta project-cta--primary"
+                        href={project.playUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        <span>▶</span>
+                        Play {project.title}
+                      </a>
+                    ) : (
+                      <Link
+                        href={`/projects/${project.slug}/play`}
+                        className="project-cta project-cta--primary"
+                      >
+                        <span>▶</span>
+                        Play {project.title}
+                      </Link>
+                    )
                   )}
 
                   {project.externalUrl && (
